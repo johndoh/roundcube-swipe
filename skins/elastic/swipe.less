@@ -1,0 +1,141 @@
+/**
+ * Swipe plugin styles
+ */
+
+@import (reference) "../../../../skins/elastic/styles/variables";
+@import (reference) "../../../../skins/elastic/styles/mixins";
+
+#swipe-action {
+  position: absolute;
+  background-color: @color-black-shade-bg;
+  color: @color-black;
+  display: flex;
+  align-items: center;
+  border-collapse: collapse;
+
+  &.checkmail,
+  &.select,
+  &.deselect {
+    background-color: @color-btn-secondary-background;
+    color: @color-btn-secondary;
+  }
+
+  &.delete {
+    background-color: @color-btn-danger-background;
+    color: @color-btn-danger;
+  }
+
+  &.flagged,
+  &.unflagged,
+  &.read,
+  &.unread {
+    background-color: @color-btn-primary-background;
+    color: @color-btn-primary;
+  }
+
+  &.forward,
+  &.reply,
+  &.replyall {
+    background-color: @color-success;
+    color: #fff;
+  }
+
+  &.move,
+  &.archive {
+    background-color: @color-warning;
+    color: #fff;
+  }
+
+  > div {
+    &.left {
+      position: absolute;
+      right: 0.5em;
+    }
+
+    &.down {
+      margin: 0 auto;
+
+      > span::before {
+        width: auto;
+        float: none;
+        margin: 0;
+        margin-bottom: 0.2em;
+        padding: 0;
+      }
+    }
+
+    > span {
+      line-height: 100%;
+      font-size: 1.2em;
+
+      &::before {
+        .font-icon-class;
+        padding: 0 1.25em 0 0.5em;
+      }
+
+      &.checkmail::before {
+        content: @fa-var-sync;
+      }
+
+      &.delete::before {
+        content: @fa-var-trash-alt;
+      }
+
+      &.flagged::before {
+        content: @fa-var-flag;
+      }
+
+      &.forward::before {
+        content: @fa-var-share;
+      }
+
+      &.unflagged::before {
+        .font-icon-regular(@fa-var-flag);
+      }
+
+      &.move::before {
+        content: @fa-var-arrows-alt;
+      }
+
+      &.read::before {
+        .font-icon-regular(@fa-var-star);
+      }
+
+      &.unread::before {
+        content: @fa-var-star;
+      }
+
+      &.reply::before {
+        content: @fa-var-reply;
+      }
+
+      &.replyall::before {
+        content: @fa-var-reply-all;
+      }
+
+      &.select::before {
+        .font-icon-regular(@fa-var-check-square);
+      }
+
+      &.deselect::before {
+        .font-icon-regular(@fa-var-square);
+      }
+
+      &.archive::before {
+        content: @fa-var-archive;
+      }
+    }
+  }
+}
+
+.swipe-active {
+  background-color:@color-layout-list-background;
+}
+
+#messagelist.swipe-active {
+  height: 100%;
+}
+
+.swipe-noscroll {
+  overflow: hidden !important;
+}

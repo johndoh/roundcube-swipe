@@ -1,0 +1,54 @@
+<div id="swipeoptions-menu" class="popupmenu propform" role="dialog" aria-labelledby="aria-label-listoptions" data-options-menuname="messagelistmenu" data-options-menuid="listoptions-menu">
+	<fieldset class="swipe">
+		<legend><roundcube:label name="swipe.swipeactions" /></legend>
+		<div class="form-group row">
+			<label for="swipeoptions-left" class="col-form-label col-sm-4"><roundcube:label name="swipe.swipeleft" /></label>
+			<div class="col-sm-8">
+				<select id="swipeoptions-left" name="swipe_left" class="form-control">
+					<option value="none"><roundcube:label name="none" /></option>
+					<option value="read"><roundcube:label name="swipe.markasread" /></option>
+	 				<option value="flagged"><roundcube:label name="swipe.markasflagged" /></option>
+					<option value="delete"><roundcube:label name="delete" /></option>
+					<option value="forward"><roundcube:label name="forward" /></option>
+					<option value="reply"><roundcube:label name="reply" /></option>
+					<option value="replyall"><roundcube:label name="replyall" /></option>
+					<option value="move"><roundcube:label name="moveto" /></option>
+					<option value="select"><roundcube:label name="select" /></option>
+					<roundcube:if condition="env:archive_folder" />
+					<option value="archive"><roundcube:label name="archive.buttontext" /></option>
+					<roundcube:endif />
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label for="swipeoptions-right" class="col-form-label col-sm-4"><roundcube:label name="swipe.swiperight" /></label>
+			<div class="col-sm-8">
+				<select id="swipeoptions-right" name="swipe_right" class="form-control">
+					<option value="none"><roundcube:label name="none" /></option>
+					<option value="read"><roundcube:label name="swipe.markasread" /></option>
+	 				<option value="flagged"><roundcube:label name="swipe.markasflagged" /></option>
+					<option value="delete"><roundcube:label name="delete" /></option>
+					<option value="forward"><roundcube:label name="forward" /></option>
+					<option value="reply"><roundcube:label name="reply" /></option>
+					<option value="replyall"><roundcube:label name="replyall" /></option>
+					<option value="move"><roundcube:label name="moveto" /></option>
+					<option value="select"><roundcube:label name="select" /></option>
+					<roundcube:if condition="env:archive_folder" />
+					<option value="archive"><roundcube:label name="archive.buttontext" /></option>
+					<roundcube:endif />
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label for="swipeoptions-down" class="col-form-label col-sm-4"><roundcube:label name="swipe.swipedown" /></label>
+			<div class="col-sm-8">
+				<select id="swipeoptions-down" name="swipe_down" class="form-control">
+					<option value="none"><roundcube:label name="none" /></option>
+					<option value="checkmail"><roundcube:label name="checkmail" /></option>
+				</select>
+			</div>
+		</div>
+	</fieldset>
+</div>
