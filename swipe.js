@@ -127,8 +127,9 @@ rcube_webmail.prototype.swipe_select_action = function(direction, obj) {
             if (!uid)
                 return;
 
+            rcmail.swipe_list_selection(uid, true);
             rcmail.enable_command('move', true);
-            $('#' + rcmail.buttons['move'][0].id).click();
+            $('#' + rcmail.buttons['move'][0].id).trigger('click');
         };
     }
     else if (rcmail.env.swipe_actions[direction] == 'read') {
