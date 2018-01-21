@@ -36,10 +36,19 @@ Supported skins
 
 Configuration
 -------------
-To set the default actions add `$config['swipe_left']`, `$config['swipe_right']`
-and `$config['swipe_down']` to your Roundcube config file. For example:
-`$config['swipe_left'] = 'delete';`. Users can configure the actions, overriding
-the defaults, from the List options menu.
+To set the default actions add the following to your Roundcube config file:
+```php
+$config['swipe_actions'] = array(
+    'messagelist' => array(
+        'left' => '<action>',
+        'right' => '<action>',
+        'down' => '<action>'
+    )
+);
+```
+Replace `<action>` with your desired action from the list below.
+Users can configure the actions, overriding the defaults, from the
+List Options menu.
 
 Supported actions
 -----------------

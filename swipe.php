@@ -29,18 +29,19 @@ class swipe extends rcube_plugin
 {
     public $task = 'mail';
     private $menu_file = '';
+    private $config = array('left' => 'none', 'right' => 'none', 'down' => 'none');
 
     public function init()
     {
-        $rcmail = rcube::get_instance();
-        $this->menu_file = '/' . $this->local_skin_path() . '/menu.html';
+        $this->config = $this->_load_config();
 
+        $this->menu_file = '/' . $this->local_skin_path() . '/menu.html';
         if (is_file(slashify($this->home) . $this->menu_file)) {
-            if ($rcmail->output->type == 'html') {
+            if (rcube::get_instance()->output->type == 'html') {
                 $this->api->output->set_env('swipe_actions', array(
-                    'left' => $rcmail->config->get('swipe_left', 'none'),
-                    'right' => $rcmail->config->get('swipe_right', 'none'),
-                    'down' => $rcmail->config->get('swipe_down', 'none')
+                    'left' => $this->config['left'],
+                    'right' => $this->config['right'],
+                    'down' => $this->config['down']
                 ));
                 $this->add_texts('localization/', true);
                 $this->api->output->add_label('none', 'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select');
@@ -71,12 +72,20 @@ class swipe extends rcube_plugin
         $config = array();
         foreach (array('left', 'right', 'down') as $direction) {
             if ($prop = rcube_utils::get_input_value('swipe_' . $direction, rcube_utils::INPUT_POST)) {
-                $config['swipe_' . $direction] = $prop;
+                $config[$direction] = $prop;
             }
         }
 
         if (count($config) > 0) {
+            $config = array_merge($this->config, $config);
+            $config = array('swipe_actions' => array('messagelist' => $config));
             rcube::get_instance()->user->save_prefs($config);
         }
+    }
+
+    private function _load_config()
+    {
+        $config = rcube::get_instance()->config->get('swipe_actions', array());
+        return array_key_exists('messagelist', $config) ? $config['messagelist'] : $this->config;
     }
 }
