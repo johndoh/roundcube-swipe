@@ -127,9 +127,17 @@ rcube_webmail.prototype.swipe_select_action = function(direction, obj) {
             if (!uid)
                 return;
 
-            rcmail.swipe_list_selection(uid, true);
+            var prev_sel = rcmail.swipe_list_selection(uid, true);
+            var prev_command = rcmail.commands['move'];
             rcmail.enable_command('move', true);
             $('#' + rcmail.buttons['move'][0].id).trigger('click');
+
+            // delay disabling the action until the next click
+            rcmail.env.swipe_delayed_action = function(e) {
+                rcmail.enable_command('move', prev_command);
+                rcmail.swipe_list_selection(uid, false, prev_sel);
+                rcmail.env.swipe_delayed_action = null;
+            };
         };
     }
     else if (rcmail.env.swipe_actions[direction] == 'read') {
@@ -379,6 +387,12 @@ $(document).ready(function() {
             };
 
             rcmail.swipe_event(swipe_config);
+        });
+
+        // disable delayed commands (eg move)
+        $(document.body).on('click', function(e) {
+            if (rcmail.env.swipe_delayed_action)
+                rcmail.env.swipe_delayed_action(e);
         });
 
         // add swipe options to list options menu
