@@ -70,6 +70,28 @@ The following actions are available for down swipe:
 * `checkmail` - Check for new messages in the current folder
 * `none` - Swipe disabled
 
+Interaction with other plugins
+------------------------------
+The `swipe_actions_list` triggered when listing the available actions on the
+list options menu.
+*Arguments:*
+ * actions
+ * axis
+
+*Return values:*
+ * actions
+
+The `swipe-action` JS event is triggered when a swipe action is performed.
+Return `false` to abort the action or return a JSON object like this to assign
+an action:
+```js
+{
+  'class': '<class name for the action box>',
+  'text': '<text displayed in the action box>',
+  'callback': function(p) { <your action here> }
+};
+```
+
 [rcplugrepo]: https://plugins.roundcube.net/packages/johndoh/swipe
 [releases]: https://github.com/johndoh/roundcube-swipe/releases
 [gpl]: https://www.gnu.org/licenses/gpl.html
