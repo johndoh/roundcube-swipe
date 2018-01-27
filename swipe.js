@@ -56,6 +56,51 @@ rcube_webmail.prototype.swipe_list_selection = function(uid, show, prev_sel) {
     return prev_sel;
 };
 
+rcube_webmail.prototype.swipe_action_callback = function(command, type, props) {
+    if (!props.uid)
+        return;
+
+    if (type == 'mark') {
+        rcmail.mark_message(command, props.uid);
+    }
+    else if (type == 'compose') {
+        rcmail.enable_command(command, true);
+        rcmail.env.uid = props.uid;
+        rcmail.command(command, '', props.obj, props.originalEvent);
+    }
+    else if (type == 'select') {
+        rcmail.message_list.highlight_row(props.uid, true);
+
+        var select_class = '';
+        if (select_class = $('#swipeoptions-menu').data('listselection-class')) {
+            if (command == 'deselect' && rcmail.message_list.get_selection().length == 0)
+                $(rcmail.gui_objects.messagelist).removeClass(select_class);
+            else
+                $(rcmail.gui_objects.messagelist).addClass(select_class);
+        }
+    }
+    else {
+       var prev_sel = rcmail.swipe_list_selection(props.uid, true);
+
+        // enable command
+        var prev_command = rcmail.commands[command];
+        rcmail.enable_command(command, true);
+
+        // some actions require a button click in the UI to trigger things like popovers
+        // rather than a direct command call
+        $('#' + rcmail.buttons[command][0].id).trigger('click');
+
+        if (props.delay_disable) {
+            return {'prev_command': prev_command, 'prev_sel': prev_sel};
+        }
+        else {
+            // restore original state
+            rcmail.enable_command(command, prev_command);
+            rcmail.swipe_list_selection(props.uid, false, prev_sel);
+        }
+    }
+};
+
 rcube_webmail.prototype.swipe_select_action = function(direction, obj) {
     var action = {
             'class': '',
@@ -66,77 +111,45 @@ rcube_webmail.prototype.swipe_select_action = function(direction, obj) {
     if (rcmail.env.swipe_actions[direction] == 'checkmail') {
         action.class = 'checkmail';
         action.text = 'refresh';
-        action.callback = function(uid, obj, e) { rcmail.command('checkmail'); };
+        action.callback = function(p) { rcmail.command('checkmail'); };
     }
     else if (rcmail.env.swipe_actions[direction] == 'delete') {
         action.class = 'delete';
         action.text = 'delete';
-        action.callback = function(uid, obj, e) {
-            if (!uid)
-                return;
-
-            var prev_sel = rcmail.swipe_list_selection(uid, true);
-
-            // enable command
-            var prev_command = rcmail.commands['delete'];
-            rcmail.enable_command('delete', true);
-            var result = rcmail.command('delete', '', obj, e);
-
-            rcmail.enable_command('delete', prev_command);
-            rcmail.swipe_list_selection(uid, false, prev_sel);
-        };
+        action.callback = function(p) { rcmail.swipe_action_callback('delete', null, p); };
     }
     else if (rcmail.env.swipe_actions[direction] == 'flagged') {
         if (obj.hasClass('flagged')) {
             action.class = 'unflagged';
             action.text = 'swipe.markasunflagged';
-            action.callback = function(uid, obj, e) {
-                if (!uid)
-                    return;
-
-                rcmail.mark_message('unflagged', uid);
-            };
+            action.callback = function(p) { rcmail.swipe_action_callback('unflagged', 'mark', p); };
         }
         else {
             action.class = 'flagged';
             action.text = 'swipe.markasflagged';
-            action.callback = function(uid, obj, e) {
-                if (!uid)
-                    return;
-
-                rcmail.mark_message('flagged', uid);
-            };
+            action.callback = function(p) { rcmail.swipe_action_callback('flagged', 'mark', p); };
         }
     }
     else if (rcmail.env.swipe_actions[direction] == 'forward') {
         action.class = 'forward';
         action.text = 'forward';
-        action.callback = function(uid, obj, e) {
-            if (!uid)
-                return;
-
-            rcmail.enable_command('forward', true);
-            rcmail.env.uid = uid;
-            rcmail.command('forward', '', obj, e);
-        };
+        action.callback = function(p) { rcmail.swipe_action_callback('forward', 'compose', p); };
     }
     else if (rcmail.env.swipe_actions[direction] == 'move') {
         action.class = 'move';
         action.text = 'moveto';
-        action.callback = function(uid, obj, e) {
-            if (!uid)
-                return;
+        action.callback = function(p) {
+            p.delay_disable = true;
 
-            var prev_sel = rcmail.swipe_list_selection(uid, true);
-            var prev_command = rcmail.commands['move'];
-            rcmail.enable_command('move', true);
-            $('#' + rcmail.buttons['move'][0].id).trigger('click');
+            var ret = rcmail.swipe_action_callback('move', null, p);
 
             // delay disabling the action until the next click
             rcmail.env.swipe_delayed_action = function(e) {
-                rcmail.enable_command('move', prev_command);
-                rcmail.swipe_list_selection(uid, false, prev_sel);
-                rcmail.env.swipe_delayed_action = null;
+                if ($(e.target).parents('.folderlist').length == 0) {
+                    rcmail.enable_command('move', ret.prev_command);
+                    rcmail.swipe_list_selection(p.uid, false, ret.prev_sel);
+                    rcmail.env.swipe_delayed_action = null;
+                }
             };
         };
     }
@@ -144,91 +157,40 @@ rcube_webmail.prototype.swipe_select_action = function(direction, obj) {
         if (obj.hasClass('unread')) {
             action.class = 'read';
             action.text = 'swipe.markasread';
-            action.callback = function(uid, obj, e) {
-                if (!uid)
-                    return;
-
-                rcmail.mark_message('read', uid);
-            };
+            action.callback = function(p) { rcmail.swipe_action_callback('read', 'mark', p); };
         }
         else {
             action.class = 'unread';
             action.text = 'swipe.markasunread';
-            action.callback = function(uid, obj, e) {
-                if (!uid)
-                    return;
-
-                rcmail.mark_message('unread', uid);
-            };
+            action.callback = function(p) { rcmail.swipe_action_callback('unread', 'mark', p); };
         }
     }
     else if (rcmail.env.swipe_actions[direction] == 'reply') {
         action.class = 'reply';
         action.text = 'reply';
-        action.callback = function(uid, obj, e) {
-            if (!uid)
-                return;
-
-            rcmail.enable_command('reply', true);
-            rcmail.env.uid = uid;
-            rcmail.command('reply', '', obj, e);
-        };
+        action.callback = function(p) { rcmail.swipe_action_callback('reply', 'compose', p); };
     }
     else if (rcmail.env.swipe_actions[direction] == 'replyall') {
         action.class = 'replyall';
         action.text = 'replyall';
-        action.callback = function(uid, obj, e) {
-            if (!uid)
-                return;
-
-            rcmail.enable_command('reply-all', true);
-            rcmail.env.uid = uid;
-            rcmail.command('reply-all', '', obj, e);
-        };
+        action.callback = function(p) { rcmail.swipe_action_callback('reply-all', 'compose', p); };
     }
     else if (rcmail.env.swipe_actions[direction] == 'select') {
         if (obj.hasClass('selected')) {
             action.class = 'deselect';
             action.text = 'swipe.deselect';
-            action.callback = function(uid, obj, e) {
-                if (!uid)
-                    return;
-
-                rcmail.message_list.highlight_row(uid, true);
-
-                if (rcmail.message_list.get_selection().length == 0)
-                    $(rcmail.gui_objects.messagelist).removeClass('withselection');
-            };
+            action.callback = function(p) { rcmail.swipe_action_callback('deselect', 'select', p); };
         }
         else {
             action.class = 'select';
             action.text = 'select';
-            action.callback = function(uid, obj, e) {
-                if (!uid)
-                    return;
-
-                $(rcmail.gui_objects.messagelist).addClass('withselection');
-                rcmail.message_list.highlight_row(uid, true);
-            };
+            action.callback = function(p) { rcmail.swipe_action_callback('select', 'select', p); };
         }
     }
     else if (rcmail.env.swipe_actions[direction] == 'archive' && rcmail.env.archive_folder) {
         action.class = 'archive';
         action.text = 'archive.buttontext';
-        action.callback = function(uid, obj, e) {
-            if (!uid)
-                return;
-
-            var prev_sel = rcmail.swipe_list_selection(uid, true);
-
-            // enable command
-            var prev_command = rcmail.commands['plugin.archive'];
-            rcmail.enable_command('plugin.archive', true);
-            var result = rcmail.command('plugin.archive', '', obj, e);
-
-            rcmail.enable_command('plugin.archive', prev_command);
-            rcmail.swipe_list_selection(uid, false, prev_sel);
-        };
+        action.callback = function(p) { rcmail.swipe_action_callback('plugin.archive', null, p); };
     }
 
     return action;
@@ -318,7 +280,7 @@ rcube_webmail.prototype.swipe_event = function(opts) {
 
                 var callback = null;
                 if (callback = $('#swipe-action').data('callback'))
-                    callback(opts.uid, opts.target_obj, e);
+                    callback({'uid': opts.uid, 'obj': opts.target_obj, 'originalEvent': e});
 
                 $('#swipe-action').removeClass().hide();
                 opts.target_obj.removeClass('swipe-active');
