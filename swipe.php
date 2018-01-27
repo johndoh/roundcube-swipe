@@ -30,6 +30,20 @@ class swipe extends rcube_plugin
     public $task = 'mail';
     private $menu_file = '';
     private $config = array('left' => 'none', 'right' => 'none', 'down' => 'none');
+    private $actions = array(
+        'vertical' => array('checkmail' => 'checkmail'),
+        'horizontal' => array(
+            'swipe-read' => 'swipe.markasread',
+            'swipe-flagged' => 'swipe.markasflagged',
+            'delete' => 'delete',
+            'forward' => 'forward',
+            'reply' => 'reply',
+            'reply-all' => 'replyall',
+            'move' => 'moveto',
+            'swipe-select' => 'select',
+            'archive' => 'archive.buttontext'
+        )
+    );
 
     public function init()
     {
@@ -48,6 +62,7 @@ class swipe extends rcube_plugin
                 $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
                 $this->include_script('swipe.js');
                 $this->add_hook('render_page', array($this, 'options_menu'));
+                $this->api->output->add_handler('swipeoptionslist', array($this, 'options_list'));
             }
 
             $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
@@ -65,6 +80,26 @@ class swipe extends rcube_plugin
         // add additional menus from skins folder
         $html = $this->api->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
         $this->api->output->add_footer($html);
+    }
+
+    public function options_list($args)
+    {
+        $disabled_actions = (array) rcube::get_instance()->config->get('disabled_actions');
+        $args['name'] = $args['fieldname'];
+
+        $select = new html_select($args);
+        $select->add($this->gettext('none'), 'none');
+        foreach ($this->actions[$args['axis']] as $action => $text) {
+            // Skip the action if it is in disabled_actions config option
+            // Skip the archive option if the plugin is not active and configured
+            if (in_array($action, $disabled_actions) || in_array('mail.' . $action, $disabled_actions) || $action == 'archive' && !$this->api->output->env['archive_folder']) {
+                continue;
+            }
+
+            $select->add($this->gettext($text), $action);
+        }
+
+        return $select->show();
     }
 
     public function save_settings()
@@ -86,6 +121,7 @@ class swipe extends rcube_plugin
     private function _load_config()
     {
         $config = rcube::get_instance()->config->get('swipe_actions', array());
+
         return array_key_exists('messagelist', $config) ? $config['messagelist'] : $this->config;
     }
 }

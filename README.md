@@ -56,13 +56,13 @@ The following actions are available for left/right swipe:
 
 * `archive` - Archive the message (Requires the Roundcube Archive plugin)
 * `delete` - Delete the message
-* `flagged` - Mark the message as flagged/unflagged
 * `forward` - Forward the message
 * `move` - Move the message to a chosen folder
-* `read` - Mark the message as read/unread
 * `reply` - Reply to the message
-* `replyall` - Reply all to the message
-* `select` - Select/deselect the message
+* `reply-all` - Reply all to the message
+* `swipe-flagged` - Mark the message as flagged/unflagged
+* `swipe-read` - Mark the message as read/unread
+* `swipe-select` - Select/deselect the message
 * `none` - Swipe disabled
 
 The following actions are available for down swipe:

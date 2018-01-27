@@ -1,4 +1,6 @@
 Roundcube Webmail Swipe
 =======================
 
-  * Created plugin
+ * Respect dont_override config
+ * Respect disabled_actions config
+ * Created plugin
