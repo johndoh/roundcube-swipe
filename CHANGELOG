@@ -1,6 +1,7 @@
 Roundcube Webmail Swipe
 =======================
 
+ * Initial support for pointer events
  * Add hooks for other plugins to interact with
  * Respect dont_override config
  * Respect disabled_actions config
