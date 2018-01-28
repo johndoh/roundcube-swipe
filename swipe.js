@@ -21,11 +21,10 @@ rcube_webmail.prototype.swipe_position_target = function(obj, pos, vertical) {
     if (pos)
         translate = (vertical ? 'translatey' : 'translatex') + '('+ pos +'px)';
 
-    $(obj).css({
-        '-webkit-transform': translate,
-        '-ms-transform': translate,
-        'transform': translate
-    });
+    if (bw.ie || bw.edge)
+        $(obj).css('display', translate == '' ? '' : 'block'); // required to make transform work in IE
+
+    $(obj).css('transform', translate);
 };
 
 rcube_webmail.prototype.swipe_list_selection = function(uid, show, prev_sel) {
@@ -90,14 +89,9 @@ rcube_webmail.prototype.swipe_action_callback = function(command, type, props) {
         // rather than a direct command call
         $('#' + this.buttons[command][0].id).trigger('click');
 
-        if (props.delay_disable) {
-            return {'prev_command': prev_command, 'prev_sel': prev_sel};
-        }
-        else {
-            // restore original state
-            this.enable_command(command, prev_command);
-            this.swipe_list_selection(props.uid, false, prev_sel);
-        }
+        // restore original state
+        this.enable_command(command, prev_command);
+        this.swipe_list_selection(props.uid, false, prev_sel);
     }
 };
 
@@ -140,20 +134,7 @@ rcube_webmail.prototype.swipe_select_action = function(direction, obj) {
     else if (this.env.swipe_actions[direction] == 'move') {
         action.class = 'move';
         action.text = 'moveto';
-        action.callback = function(p) {
-            p.delay_disable = true;
-
-            var ret = rcmail.swipe_action_callback('move', null, p);
-
-            // delay disabling the action until the next click
-            rcmail.env.swipe_delayed_action = function(e) {
-                if ($(e.target).parents('.folderlist').length == 0) {
-                    rcmail.enable_command('move', ret.prev_command);
-                    rcmail.swipe_list_selection(p.uid, false, ret.prev_sel);
-                    rcmail.env.swipe_delayed_action = null;
-                }
-            };
-        };
+        action.callback = function(p) { rcmail.swipe_action_callback('move', null, p); };
     }
     else if (this.env.swipe_actions[direction] == 'reply') {
         action.class = 'reply';
@@ -206,37 +187,71 @@ rcube_webmail.prototype.swipe_select_action = function(direction, obj) {
 };
 
 rcube_webmail.prototype.swipe_event = function(opts) {
+    var touchevents = {
+        'startevent': 'touchstart',
+        'moveevent': 'touchmove',
+        'endevent': 'touchend',
+        'id': function(e) { return 1; },
+        'pos': function(e, x) { return e.originalEvent.targetTouches[0][ x ? 'pageX' : 'pageY']; }
+    };
     var touchstart = {};
+
+    // use pointer events if the browser supports them but not touch (eg IE)
+    if (bw.pointer && !bw.touch) {
+        opts.source_obj.css('touch-action', 'pan-y');
+        touchevents = {
+            'startevent': 'pointerdown',
+            'moveevent': 'pointermove',
+            'endevent': 'pointerup',
+            'id': function(e) { return e.pointerId; },
+            'pos': function(e, x) { return e.originalEvent[ x ? 'pageX' : 'pageY']; }
+        };
+    }
 
     // swipe down on message list container
     opts.source_obj
-        .on('touchstart', function(e) {
-            touchstart.x = e.originalEvent.targetTouches[0].pageX;
-            touchstart.y = e.originalEvent.targetTouches[0].pageY;
+        .on(touchevents.startevent, function(e) {
+            if (!touchstart.axis) {
+                touchstart.x = touchevents.pos(e, true);
+                touchstart.y = touchevents.pos(e, false);
+                touchstart.id = touchevents.id(e);
+            }
         })
-        .on('touchmove', function(e) {
-            // make sure no other swipes are active
-            if (rcmail.env.swipe_active && rcmail.env.swipe_active != opts.axis)
+        .on(touchevents.moveevent, function(e) {
+            if (touchstart.id != touchevents.id(e))
                 return;
 
-            var changeX = e.originalEvent.targetTouches[0].pageX - touchstart.x;
-            var changeY = e.originalEvent.targetTouches[0].pageY - touchstart.y;
+            var changeX = touchevents.pos(e, true) - touchstart.x;
+            var changeY = touchevents.pos(e, false) - touchstart.y;
 
             // stop the message row from sliding off the screen completely
-            if (opts.axis == 'vertical') {
-                changeY = Math.min(opts.maxmove, changeY);
+            changeY = Math.min(opts.vertical.maxmove, changeY);
+            changeX = changeX < 0 ? Math.max(opts.horizontal.maxmove * -1, changeX) : Math.min(opts.horizontal.maxmove, changeX);
+
+            var temp_axis;
+            if (((changeY > 5 || changeY < -5) && changeX < 5 && changeX > -5 && opts.vertical.target_obj.scrollTop() == 0) || opts.vertical.target_obj.hasClass('swipe-active')) {
+                temp_axis = 'vertical';
+            }
+            else if (((changeX > 5 || changeX < -5) && changeY < 5 && changeY > -5) || opts.horizontal.target_obj.hasClass('swipe-active')) {
+                temp_axis = 'horizontal';
             }
             else {
-                changeX = changeX < 0 ? Math.max(opts.maxmove * -1, changeX) : Math.min(opts.maxmove, changeX);
+                return;
             }
 
-            if ((opts.axis == 'vertical' && (((changeX < 5 && changeX > -5) && opts.source_obj.scrollTop() == 0) || opts.target_obj.hasClass('swipe-active'))) ||
-               ((opts.axis == 'horizontal' && ((changeY < 5 && changeY > -5) || opts.target_obj.hasClass('swipe-active'))))) {
+            // make sure no other swipes are active
+            if (touchstart.axis && touchstart.axis != temp_axis)
+                return;
+
+            // save the axis info
+            touchstart.axis = temp_axis;
+
+            if (touchstart.axis) {
                 // do not allow swipe up
-                if (opts.axis == 'vertical' && changeY < 0)
+                if (touchstart.axis == 'vertical' && changeY < 0)
                     return
 
-                var direction = (opts.axis == 'vertical' ? 'down' : (changeX < 0 ? 'left' : 'right'));
+                var direction = (touchstart.axis == 'vertical' ? 'down' : (changeX < 0 ? 'left' : 'right'));
                 var action = rcmail.swipe_select_action(direction, opts.source_obj);
 
                 // skip if there is no event
@@ -253,22 +268,21 @@ rcube_webmail.prototype.swipe_event = function(opts) {
                                 .addClass(action.class)
                                 .text(rcmail.gettext(action.text));
 
-                if (!opts.target_obj.hasClass('swipe-active')) {
-                    var action_style = opts.action_sytle(opts.target_obj);
+                if (!opts[touchstart.axis].target_obj.hasClass('swipe-active')) {
+                    var action_style = opts[touchstart.axis].action_sytle(opts[touchstart.axis].target_obj);
                     $('#swipe-action').css({
                         'top': action_style.top,
                         'left': action_style.left,
                         'width': action_style.width,
                         'height': action_style.height
                     }).show();
-                    opts.target_obj.addClass('swipe-active');
-                    opts.source_obj.addClass('swipe-noscroll');
-                    rcmail.env.swipe_active = opts.axis; // set the active swipe
+                    opts[touchstart.axis].target_obj.addClass('swipe-active');
+                    rcmail.env.swipe_active = touchstart.axis; // set the active swipe
                 }
 
                 // the user must swipe a certain about before the action is activated, try to prevent accidental actions
-                if ((opts.axis == 'vertical' && changeY > opts.minmove) ||
-                    (opts.axis == 'horizontal' && (changeX < (opts.minmove * -1) || changeX > opts.minmove))) {
+                if ((touchstart.axis == 'vertical' && changeY > opts[touchstart.axis].minmove) ||
+                    (touchstart.axis == 'horizontal' && (changeX < (opts[touchstart.axis].minmove * -1) || changeX > opts[touchstart.axis].minmove))) {
                     $('#swipe-action').addClass(action.class);
                 }
                 else {
@@ -277,33 +291,32 @@ rcube_webmail.prototype.swipe_event = function(opts) {
                     $('#swipe-action').data('callback', null);
                 }
 
-                rcmail.swipe_position_target(opts.target_obj, opts.axis == 'vertical' ? changeY : changeX, opts.axis == 'vertical');
+                rcmail.swipe_position_target(opts[touchstart.axis].target_obj, touchstart.axis == 'vertical' ? changeY : changeX, touchstart.axis == 'vertical');
 
                 if (opts.parent_obj)
-                    opts.parent_obj.on('touchmove', rcube_event.cancel);
+                    opts.parent_obj.on(touchevents.moveevent, rcube_event.cancel);
             }
         })
-        .on('touchend', function(e) {
-            if (rcmail.env.swipe_active && rcmail.env.swipe_active == opts.axis && opts.target_obj.hasClass('swipe-active')) {
-                rcmail.swipe_position_target(opts.target_obj, 0, opts.axis == 'vertical');
+        .on(touchevents.endevent, function(e) {
+            if (touchstart.id == touchevents.id(e) && touchstart.axis && opts[touchstart.axis].target_obj.hasClass('swipe-active')) {
+                rcmail.swipe_position_target(opts[touchstart.axis].target_obj, 0, touchstart.axis == 'vertical');
 
                 var callback = null;
                 if (callback = $('#swipe-action').data('callback'))
-                    callback({'uid': opts.uid, 'obj': opts.target_obj, 'originalEvent': e});
+                    callback({'uid': opts[touchstart.axis].uid, 'obj': opts[touchstart.axis].target_obj, 'originalEvent': e});
 
                 $('#swipe-action').removeClass().hide();
-                opts.target_obj.removeClass('swipe-active');
-                opts.source_obj.removeClass('swipe-noscroll');
-                rcmail.env.swipe_active = null;
+                opts[touchstart.axis].target_obj.removeClass('swipe-active');
+                touchstart.axis = null;
 
                 if (opts.parent_obj)
-                    opts.parent_obj.off('touchmove', rcube_event.cancel);
+                    opts.parent_obj.off(touchevents.moveevent, rcube_event.cancel);
             }
         });
 }
 
 $(document).ready(function() {
-    if (window.rcmail && bw.touch && !((bw.ie || bw.edge) && bw.pointer)) {
+    if (window.rcmail && (bw.touch || bw.pointer)) {
         rcmail.addEventListener('init', function() {
             var messagelist_container = $(rcmail.gui_objects.messagelist).parent();
             if (rcmail.message_list.draggable || !messagelist_container[0].addEventListener)
@@ -311,27 +324,6 @@ $(document).ready(function() {
 
             rcmail.env.swipe_parent = messagelist_container;
             rcmail.env.swipe_parent.prepend($('<div>').attr('id', 'swipe-action').html($('<div>').append($('<span>'))).hide());
-
-            // down swipe on message list container
-            var swipe_config = {
-                'source_obj': rcmail.env.swipe_parent,
-                'axis': 'vertical',
-                'minmove': $(window).height() * 0.1,
-                'maxmove': $(window).height() * 0.2,
-                'action_sytle': function(o) {
-                    return {
-                        'top': o.children('tbody').position().top,
-                        'left': o.children('tbody').position().left,
-                        'width': o.children('tbody').width() + 'px',
-                        'height': $(window).height() * 0.2 + 'px'
-                    };
-                },
-                'target_obj': $(rcmail.gui_objects.messagelist),
-                'uid': null,
-                'parent_obj': rcmail.env.swipe_parent.parent()
-            };
-
-            rcmail.swipe_event(swipe_config);
         });
 
         // right/left swipe on message list
@@ -341,29 +333,38 @@ $(document).ready(function() {
 
             var swipe_config = {
                 'source_obj': $('#' + props.row.id),
-                'axis': 'horizontal',
-                'minmove': $('#' + props.row.id).width() * 0.25,
-                'maxmove': $('#' + props.row.id).width() * 0.6,
-                'action_sytle': function(o) {
-                    return {
-                        'top': o.position().top,
-                        'left': o.position().left,
-                        'width': o.width() + 'px',
-                        'height': (o.height() - 2) + 'px' // subtract the border
-                    };
+                'parent_obj': rcmail.env.swipe_parent,
+                'horizontal': {
+                    'minmove': $('#' + props.row.id).width() * 0.25,
+                    'maxmove': $('#' + props.row.id).width() * 0.6,
+                    'action_sytle': function(o) {
+                        return {
+                            'top': o.position().top,
+                            'left': o.position().left,
+                            'width': o.width() + 'px',
+                            'height': (o.height() - 2) + 'px' // subtract the border
+                        };
+                    },
+                    'target_obj': $('#' + props.row.id),
+                    'uid': props.uid
                 },
-                'target_obj': $('#' + props.row.id),
-                'uid': props.uid,
-                'parent_obj': rcmail.env.swipe_parent
+                'vertical': {
+                    'minmove': $(window).height() * 0.1,
+                    'maxmove': $(window).height() * 0.2,
+                    'action_sytle': function(o) {
+                        return {
+                            'top': o.children('tbody').position().top,
+                            'left': o.children('tbody').position().left,
+                            'width': o.children('tbody').width() + 'px',
+                            'height': $(window).height() * 0.2 + 'px'
+                        };
+                    },
+                    'target_obj': $(rcmail.gui_objects.messagelist),
+                    'uid': null
+                }
             };
 
             rcmail.swipe_event(swipe_config);
-        });
-
-        // disable delayed commands (eg move)
-        $(document.body).on('click', function(e) {
-            if (rcmail.env.swipe_delayed_action)
-                rcmail.env.swipe_delayed_action(e);
         });
 
         // add swipe options to list options menu
@@ -374,6 +375,12 @@ $(document).ready(function() {
                     $.each(['left', 'right', 'down'], function() {
                         $('select[name="swipe_' + this + '"]:visible').val(rcmail.env.swipe_actions[this]);
                     });
+
+                    if (bw.pointer && !bw.touch) {
+                        // TODO find a way to allow vertical actions but also scrolling of message list in IE
+                        $('div.swipeoptions-down').hide();
+                    }
+
                     $('fieldset.swipe').show();
                 }
                 else {

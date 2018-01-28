@@ -18,7 +18,7 @@
         </div>
         <roundcube:endif />
         <roundcube:if condition="!in_array('swipe_actions.messagelist.down', (array)config:dont_override)" />
-        <div class="form-group row">
+        <div class="form-group row swipeoptions-down">
             <label for="swipeoptions-down" class="col-form-label col-sm-4"><roundcube:label name="swipe.swipedown" /></label>
             <div class="col-sm-8">
                 <roundcube:object name="swipeoptionslist" fieldname="swipe_down" id="swipeoptions-down" class="form-control" axis="vertical" />
