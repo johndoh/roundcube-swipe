@@ -21,7 +21,7 @@ rcube_webmail.prototype.swipe_position_target = function(obj, pos, vertical) {
     if (pos)
         translate = (vertical ? 'translatey' : 'translatex') + '('+ pos +'px)';
 
-    if (bw.edge) // Edge does not support transform on <tr>s
+    if (bw.edge && $(obj).is('tr')) // Edge does not support transform on <tr>s
         $(obj).children('td').css('transform', translate);
     else
         $(obj).css('transform', translate);
@@ -210,6 +210,7 @@ rcube_webmail.prototype.swipe_event = function(opts) {
         'moveevent': 'touchmove',
         'endevent': 'touchend',
         'id': function(e) { return 1; },
+        'type': function(e) { return 'touch'; },
         'pos': function(e, x) { return e.originalEvent.targetTouches[0][ x ? 'pageX' : 'pageY']; }
     };
     var touchstart = {};
@@ -217,15 +218,17 @@ rcube_webmail.prototype.swipe_event = function(opts) {
     // use pointer events if the browser supports them but not touch (eg Edge)
     if (bw.pointer && !bw.touch) {
         // TODO find a way to allow vertical actions but also scrolling of message list in Edge
-        opts.source_obj.css('touch-action', 'pan-y');
         if (opts.axis == 'vertical')
             return;
+
+        opts.source_obj.css('touch-action', 'pan-y');
 
         touchevents = {
             'startevent': 'pointerdown',
             'moveevent': 'pointermove',
             'endevent': 'pointerup',
             'id': function(e) { return e.pointerId; },
+            'type': function(e) { return e.pointerType; },
             'pos': function(e, x) { return e.originalEvent[ x ? 'pageX' : 'pageY']; }
         };
     }
@@ -233,7 +236,7 @@ rcube_webmail.prototype.swipe_event = function(opts) {
     // swipe down on message list container
     opts.source_obj
         .on(touchevents.startevent, function(e) {
-            if (!rcmail.env.swipe_active) {
+            if (!rcmail.env.swipe_active && touchevents.type(e) == 'touch') {
                 touchstart.x = touchevents.pos(e, true);
                 touchstart.y = touchevents.pos(e, false);
                 touchstart.id = touchevents.id(e);
@@ -242,7 +245,7 @@ rcube_webmail.prototype.swipe_event = function(opts) {
         .on(touchevents.moveevent, function(e) {
             // make sure no other swipes are active and no other pointers
             if ((rcmail.env.swipe_active && rcmail.env.swipe_active != opts.axis) ||
-                touchstart.id != touchevents.id(e))
+                touchstart.id != touchevents.id(e) || touchevents.type(e) != 'touch')
                 return;
 
             var changeX = touchevents.pos(e, true) - touchstart.x;
@@ -310,7 +313,8 @@ rcube_webmail.prototype.swipe_event = function(opts) {
             }
         })
         .on(touchevents.endevent, function(e) {
-            if (touchstart.id == touchevents.id(e) && rcmail.env.swipe_active && rcmail.env.swipe_active == opts.axis && opts.target_obj.hasClass('swipe-active')) {
+            if (touchevents.type(e) == 'touch' && touchstart.id == touchevents.id(e) && rcmail.env.swipe_active &&
+                rcmail.env.swipe_active == opts.axis && opts.target_obj.hasClass('swipe-active')) {
                 rcmail.swipe_position_target(opts.target_obj, 0, opts.axis == 'vertical');
 
                 var callback = null;
