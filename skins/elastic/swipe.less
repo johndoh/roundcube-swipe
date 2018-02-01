@@ -20,7 +20,8 @@
     color: @color-btn-secondary;
   }
 
-  &.delete {
+  &.delete,
+  &.junk {
     background-color: @color-btn-danger-background;
     color: @color-btn-danger;
   }
@@ -123,6 +124,10 @@
 
       &.archive::before {
         content: @fa-var-archive;
+      }
+
+      &.junk::before {
+        content: @fa-var-fire;
       }
     }
   }

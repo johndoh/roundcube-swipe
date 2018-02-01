@@ -136,6 +136,11 @@ rcube_webmail.prototype.swipe_select_action = function(direction, obj) {
         action.text = 'forward';
         action.callback = function(p) { rcmail.swipe_action_callback('forward', 'compose', p); };
     }
+    else if (this.env.swipe_actions[direction] == 'markasjunk') {
+        action.class = 'junk';
+        action.text = 'markasjunk.buttontitle';
+        action.callback = function(p) { rcmail.swipe_action_callback('plugin.markasjunk', null, p); };
+    }
     else if (this.env.swipe_actions[direction] == 'move') {
         action.class = 'move';
         action.text = 'moveto';

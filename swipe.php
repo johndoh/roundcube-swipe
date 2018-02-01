@@ -43,7 +43,8 @@ class swipe extends rcube_plugin
             'reply-all' => 'replyall',
             'move' => 'moveto',
             'swipe-select' => 'select',
-            'archive' => 'archive.buttontext'
+            'archive' => 'archive.buttontext',
+            'markasjunk' => 'markasjunk.buttontitle'
         )
     );
 
@@ -87,6 +88,7 @@ class swipe extends rcube_plugin
     public function options_list($args)
     {
         $disabled_actions = (array) rcube::get_instance()->config->get('disabled_actions');
+        $laoded_plugins = $this->api->loaded_plugins();
         $swipe_actions = $this->actions[$args['axis']];
         $args['name'] = $args['fieldname'];
 
@@ -98,7 +100,9 @@ class swipe extends rcube_plugin
         foreach ($data['actions'] as $action => $text) {
             // Skip the action if it is in disabled_actions config option
             // Skip the archive option if the plugin is not active and configured
-            if (in_array($action, $disabled_actions) || in_array('mail.' . $action, $disabled_actions) || $action == 'archive' && !$this->api->output->env['archive_folder']) {
+            if (in_array($action, $disabled_actions) || in_array('mail.' . $action, $disabled_actions) ||
+                $action == 'archive' && !$this->api->output->env['archive_folder'] ||
+                $action == 'markasjunk' && !in_array('markasjunk', $laoded_plugins)) {
                 continue;
             }
 

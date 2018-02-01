@@ -62,6 +62,7 @@ The following actions are available for left/right swipe:
 * `archive` - Archive the message (Requires the Roundcube Archive plugin)
 * `delete` - Delete the message
 * `forward` - Forward the message
+* `markasjunk` - Mark the message as junk (Requires the Roundcube Markasjunk plugin)
 * `move` - Move the message to a chosen folder
 * `reply` - Reply to the message
 * `reply-all` - Reply all to the message
