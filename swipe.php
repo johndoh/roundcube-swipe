@@ -31,7 +31,9 @@ class swipe extends rcube_plugin
     private $menu_file = '';
     private $config = array('left' => 'none', 'right' => 'none', 'down' => 'none');
     private $actions = array(
-        'vertical' => array('checkmail' => 'checkmail'),
+        'vertical' => array(
+            'checkmail' => 'checkmail'
+        ),
         'horizontal' => array(
             'swipe-read' => 'swipe.markasread',
             'swipe-flagged' => 'swipe.markasflagged',
@@ -47,11 +49,13 @@ class swipe extends rcube_plugin
 
     public function init()
     {
+        $rcmail = rcube::get_instance();
         $this->config = $this->_load_config();
+        $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
 
-        $this->menu_file = '/' . $this->local_skin_path() . '/menu.html';
-        if (is_file(slashify($this->home) . $this->menu_file)) {
-            if (rcube::get_instance()->output->type == 'html') {
+        if ($rcmail->output->type == 'html' && $rcmail->action == '') {
+            $this->menu_file = '/' . $this->local_skin_path() . '/menu.html';
+            if (is_file(slashify($this->home) . $this->menu_file)) {
                 $this->api->output->set_env('swipe_actions', array(
                     'left' => $this->config['left'],
                     'right' => $this->config['right'],
@@ -64,8 +68,6 @@ class swipe extends rcube_plugin
                 $this->add_hook('render_page', array($this, 'options_menu'));
                 $this->api->output->add_handler('swipeoptionslist', array($this, 'options_list'));
             }
-
-            $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
         }
     }
 
