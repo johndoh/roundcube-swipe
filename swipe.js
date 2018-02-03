@@ -259,6 +259,10 @@ rcube_webmail.prototype.swipe_event = function(opts) {
 
                 if (opts.parent_obj)
                     opts.parent_obj.off(touchevents.moveevent, rcube_event.cancel);
+
+                // set display block to make table height work on android
+                if ($.isEmptyObject(rcmail.message_list.rows))
+                    $(rcmail.gui_objects.messagelist).addClass('swipe-block');
             }
         })
         .on(touchevents.moveevent, function(e) {
@@ -363,7 +367,7 @@ rcube_webmail.prototype.swipe_event = function(opts) {
                     callback({'uid': opts[touchstart.axis].uid, 'obj': opts[touchstart.axis].target_obj, 'originalEvent': e});
 
                 $('#swipe-action').removeClass().hide();
-                opts[touchstart.axis].target_obj.removeClass('swipe-active');
+                opts[touchstart.axis].target_obj.removeClass('swipe-active swipe-block');
                 touchstart = {};
                 rcmail.env.swipe_active = null;
 
