@@ -2,7 +2,7 @@ Roundcube Webmail Swipe
 =======================
 
  * Add support for markasjunk plugin
- * Initial support for pointer events
+ * Support for pointer events
  * Add hooks for other plugins to interact with
  * Respect dont_override config
  * Respect disabled_actions config

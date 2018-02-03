@@ -23,7 +23,6 @@ folder for details on the skin license.
 
 Known issues
 ------------
-* Only horizontal actions work with pointer events (eg. Edge)
 * No support in IE
 
 Install
