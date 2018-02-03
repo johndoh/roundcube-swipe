@@ -230,14 +230,22 @@ rcube_webmail.prototype.swipe_event = function(opts) {
             'type': function(e) { return e.pointerType; },
             'pos': function(e, x) { return e.originalEvent[ x ? 'pageX' : 'pageY']; }
         };
+    }
 
-        rcmail.env.swipe_parent.on('scroll', function() {
+    // prevent accidental message list scroll when swipe active
+    rcmail.env.swipe_parent.on('scroll', function() {
+        if (bw.pointer && !bw.touch) {
+            // all vertical pointerevents to fire
             if ($(this).scrollTop() == 0) {
                 rcmail.env.swipe_parent.css('touch-action', 'none');
                 $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', 'none');
             }
-        }).trigger('scroll');
-    }
+        }
+        else if (bw.touch) {
+            if (rcmail.env.swipe_active)
+                return false;
+        }
+    }).trigger('scroll');
 
     // swipe down on message list container
     opts.source_obj
