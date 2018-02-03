@@ -1,7 +1,7 @@
 Roundcube Webmail Swipe
 =======================
 This plugin adds left/right/down swipe actions to entries in the the message
-list on touch devices (tables/phones) with browsers that support touch events.
+list on touch devices (tables/phones).
 
 ATTENTION
 ---------
@@ -20,6 +20,11 @@ Even if skins might contain some programming work, they are not considered
 as a linked part of the plugin and therefore skins DO NOT fall under the
 provisions of the GPL license. See the README file located in the core skins
 folder for details on the skin license.
+
+Known issues
+------------
+* Only horizontal actions work with pointer events (eg. Edge)
+* No support in IE
 
 Install
 -------
@@ -57,6 +62,7 @@ The following actions are available for left/right swipe:
 * `archive` - Archive the message (Requires the Roundcube Archive plugin)
 * `delete` - Delete the message
 * `forward` - Forward the message
+* `markasjunk` - Mark the message as junk (Requires the Roundcube Markasjunk plugin)
 * `move` - Move the message to a chosen folder
 * `reply` - Reply to the message
 * `reply-all` - Reply all to the message

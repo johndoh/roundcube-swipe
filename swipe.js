@@ -136,6 +136,11 @@ rcube_webmail.prototype.swipe_select_action = function(direction, obj) {
         action.text = 'forward';
         action.callback = function(p) { rcmail.swipe_action_callback('forward', 'compose', p); };
     }
+    else if (this.env.swipe_actions[direction] == 'markasjunk') {
+        action.class = 'junk';
+        action.text = 'markasjunk.buttontitle';
+        action.callback = function(p) { rcmail.swipe_action_callback('plugin.markasjunk', null, p); };
+    }
     else if (this.env.swipe_actions[direction] == 'move') {
         action.class = 'move';
         action.text = 'moveto';
@@ -241,6 +246,7 @@ rcube_webmail.prototype.swipe_event = function(opts) {
                 touchstart.x = touchevents.pos(e, true);
                 touchstart.y = touchevents.pos(e, false);
                 touchstart.id = touchevents.id(e);
+                touchstart.scrollable = rcmail.env.swipe_parent[0].offsetHeight < rcmail.env.swipe_parent[0].scrollHeight;
 
                 if (opts.parent_obj)
                     opts.parent_obj.off(touchevents.moveevent, rcube_event.cancel);
@@ -277,7 +283,7 @@ rcube_webmail.prototype.swipe_event = function(opts) {
                 if (bw.pointer && !bw.touch && changeY < 0) {
                     $('#swipe-action').removeClass().hide();
 
-                    if (rcmail.env.swipe_parent[0].offsetHeight < rcmail.env.swipe_parent[0].scrollHeight) {
+                    if (touchstart.scrollable) {
                         rcmail.env.swipe_parent.css('touch-action', 'pan-y');
                         $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', 'pan-y');
                     }
@@ -339,7 +345,8 @@ rcube_webmail.prototype.swipe_event = function(opts) {
             rcmail.swipe_position_target(opts[touchstart.axis].target_obj, touchstart.axis == 'vertical' ? changeY : changeX, touchstart.axis == 'vertical');
         })
         .on(touchevents.endevent, function(e) {
-            if (touchstart.id == touchevents.id(e) && rcmail.env.swipe_active && rcmail.env.swipe_active == touchstart.axis && opts[touchstart.axis].target_obj.hasClass('swipe-active')) {
+            if (touchevents.type(e) == 'touch' && touchstart.id == touchevents.id(e) && rcmail.env.swipe_active &&
+                rcmail.env.swipe_active == touchstart.axis && opts[touchstart.axis].target_obj.hasClass('swipe-active')) {
                 rcmail.swipe_position_target(opts[touchstart.axis].target_obj, 0, touchstart.axis == 'vertical');
 
                 var callback = null;
@@ -358,7 +365,7 @@ rcube_webmail.prototype.swipe_event = function(opts) {
 }
 
 $(document).ready(function() {
-    if (window.rcmail && (bw.touch || bw.pointer)) {
+    if (window.rcmail && ((bw.touch && !bw.ie) || bw.pointer)) {
         rcmail.addEventListener('init', function() {
             var messagelist_container = $(rcmail.gui_objects.messagelist).parent();
             if (rcmail.message_list.draggable || !messagelist_container[0].addEventListener)
