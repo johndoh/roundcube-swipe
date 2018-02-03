@@ -235,10 +235,11 @@ rcube_webmail.prototype.swipe_event = function(opts) {
     // prevent accidental message list scroll when swipe active
     rcmail.env.swipe_parent.on('scroll', function() {
         if (bw.pointer && !bw.touch) {
-            // all vertical pointerevents to fire
+            // allow vertical pointerevents to fire (if one is configured)
             if ($(this).scrollTop() == 0) {
-                rcmail.env.swipe_parent.css('touch-action', 'none');
-                $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', 'none');
+                var action = rcmail.swipe_select_action('down');
+                rcmail.env.swipe_parent.css('touch-action', action.callback ? 'none' : 'pan-y');
+                $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', action.callback ? 'none' : 'pan-y');
             }
         }
         else if (bw.touch) {
