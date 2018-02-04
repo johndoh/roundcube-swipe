@@ -211,31 +211,31 @@ rcube_webmail.prototype.swipe_select_action = function(direction, obj) {
 
 rcube_webmail.prototype.swipe_event = function(opts) {
     var touchevents = {
-        'startevent': 'touchstart',
-        'moveevent': 'touchmove',
-        'endevent': 'touchend',
-        'id': function(e) { return 1; },
-        'type': function(e) { return 'touch'; },
-        'pos': function(e, x) { return e.originalEvent.targetTouches[0][ x ? 'pageX' : 'pageY']; }
+        'startevent': 'pointerdown',
+        'moveevent': 'pointermove',
+        'endevent': 'pointerup',
+        'id': function(e) { return e.pointerId; },
+        'type': function(e) { return e.pointerType; },
+        'pos': function(e, x) { return e.originalEvent[ x ? 'pageX' : 'pageY']; }
     };
     var touchstart = {};
 
-    // use pointer events if the browser supports them
-    if (bw.pointer) {
+    // fallback to touch events if there is no pointer support
+    if (!bw.pointer) {
         touchevents = {
-            'startevent': 'pointerdown',
-            'moveevent': 'pointermove',
-            'endevent': 'pointerup',
-            'id': function(e) { return e.pointerId; },
-            'type': function(e) { return e.pointerType; },
-            'pos': function(e, x) { return e.originalEvent[ x ? 'pageX' : 'pageY']; }
+            'startevent': 'touchstart',
+            'moveevent': 'touchmove',
+            'endevent': 'touchend',
+            'id': function(e) { return 1; },
+            'type': function(e) { return 'touch'; },
+            'pos': function(e, x) { return e.originalEvent.targetTouches[0][ x ? 'pageX' : 'pageY']; }
         };
     }
 
     // prevent accidental message list scroll when swipe active
     rcmail.env.swipe_parent.on('scroll', function() {
         if (bw.pointer) {
-            // allow vertical pointerevents to fire (if one is configured)
+            // allow vertical pointer events to fire (if one is configured)
             if ($(this).scrollTop() == 0) {
                 var action = rcmail.swipe_select_action('down');
                 // Edge does not support pan-down, only pan-y
