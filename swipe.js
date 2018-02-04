@@ -234,18 +234,16 @@ rcube_webmail.prototype.swipe_event = function(opts) {
 
     // prevent accidental message list scroll when swipe active
     rcmail.env.swipe_parent.on('scroll', function() {
-        if (bw.pointer) {
-            // allow vertical pointer events to fire (if one is configured)
-            if ($(this).scrollTop() == 0) {
-                var action = rcmail.swipe_select_action('down');
-                // Edge does not support pan-down, only pan-y
-                rcmail.env.swipe_parent.css('touch-action', action.callback ? (bw.edge ? 'none' : 'pan-down') : 'pan-y');
-                $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', action.callback ? (bw.edge ? 'none' : 'pan-down') : 'pan-y');
-            }
-        }
-        else if (bw.touch) {
+        if (!bw.pointer) {
             if (rcmail.env.swipe_active)
                 return false;
+        }
+        else if ($(this).scrollTop() == 0) {
+            // allow vertical pointer events to fire (if one is configured)
+            var action = rcmail.swipe_select_action('down');
+            // Edge does not support pan-down, only pan-y
+            rcmail.env.swipe_parent.css('touch-action', action.callback ? (bw.edge ? 'none' : 'pan-down') : 'pan-y');
+            $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', action.callback ? (bw.edge ? 'none' : 'pan-down') : 'pan-y');
         }
     }).trigger('scroll');
 
@@ -294,7 +292,10 @@ rcube_webmail.prototype.swipe_event = function(opts) {
                 return;
 
             if (temp_axis == 'vertical') {
-                if (bw.pointer && changeY < 0) {
+                if (!bw.pointer && (changeY < 0 || (changeY > 0 && opts.vertical.target_obj.parent().scrollTop() > 0))) {
+                    return;
+                }
+                else if (changeY < 0) {
                     $('#swipe-action').removeClass().hide();
 
                     if (touchstart.scrollable) {
@@ -302,9 +303,6 @@ rcube_webmail.prototype.swipe_event = function(opts) {
                         $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', 'pan-y');
                     }
 
-                    return;
-                }
-                else if (changeY < 0 || (changeY > 0 && opts.vertical.target_obj.parent().scrollTop() > 0)) {
                     return;
                 }
             }
