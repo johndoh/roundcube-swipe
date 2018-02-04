@@ -220,8 +220,8 @@ rcube_webmail.prototype.swipe_event = function(opts) {
     };
     var touchstart = {};
 
-    // use pointer events if the browser supports them but not touch (eg Edge)
-    if (bw.pointer && !bw.touch) {
+    // use pointer events if the browser supports them
+    if (bw.pointer) {
         touchevents = {
             'startevent': 'pointerdown',
             'moveevent': 'pointermove',
@@ -234,12 +234,13 @@ rcube_webmail.prototype.swipe_event = function(opts) {
 
     // prevent accidental message list scroll when swipe active
     rcmail.env.swipe_parent.on('scroll', function() {
-        if (bw.pointer && !bw.touch) {
+        if (bw.pointer) {
             // allow vertical pointerevents to fire (if one is configured)
             if ($(this).scrollTop() == 0) {
                 var action = rcmail.swipe_select_action('down');
-                rcmail.env.swipe_parent.css('touch-action', action.callback ? 'none' : 'pan-y');
-                $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', action.callback ? 'none' : 'pan-y');
+                // Edge does not support pan-down, only pan-y
+                rcmail.env.swipe_parent.css('touch-action', action.callback ? (bw.edge ? 'none' : 'pan-down') : 'pan-y');
+                $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', action.callback ? (bw.edge ? 'none' : 'pan-down') : 'pan-y');
             }
         }
         else if (bw.touch) {
@@ -293,7 +294,7 @@ rcube_webmail.prototype.swipe_event = function(opts) {
                 return;
 
             if (temp_axis == 'vertical') {
-                if (bw.pointer && !bw.touch && changeY < 0) {
+                if (bw.pointer && changeY < 0) {
                     $('#swipe-action').removeClass().hide();
 
                     if (touchstart.scrollable) {
@@ -301,8 +302,6 @@ rcube_webmail.prototype.swipe_event = function(opts) {
                         $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', 'pan-y');
                     }
 
-                    // TODO perform "normal" scroll action
-                    //opts.vertical.target_obj.parent().scrollTop((opts.vertical.target_obj.parent().scrollTop() + changeY) * -1);
                     return;
                 }
                 else if (changeY < 0 || (changeY > 0 && opts.vertical.target_obj.parent().scrollTop() > 0)) {
@@ -367,7 +366,8 @@ rcube_webmail.prototype.swipe_event = function(opts) {
                     callback({'uid': opts[touchstart.axis].uid, 'obj': opts[touchstart.axis].target_obj, 'originalEvent': e});
 
                 $('#swipe-action').removeClass().hide();
-                opts[touchstart.axis].target_obj.removeClass('swipe-active swipe-block');
+                opts[touchstart.axis].target_obj.removeClass('swipe-active');
+                $(rcmail.gui_objects.messagelist).removeClass('swipe-block');
                 touchstart = {};
                 rcmail.env.swipe_active = null;
 
