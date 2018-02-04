@@ -24,6 +24,7 @@ folder for details on the skin license.
 Known issues
 ------------
 * No support in IE
+* Edge does not support `touch-action: pan-down;` CSS
 
 Install
 -------
