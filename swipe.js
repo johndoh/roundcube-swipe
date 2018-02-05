@@ -232,21 +232,6 @@ rcube_webmail.prototype.swipe_event = function(opts) {
         };
     }
 
-    // prevent accidental message list scroll when swipe active
-    rcmail.env.swipe_parent.on('scroll', function() {
-        if (!bw.pointer) {
-            if (rcmail.env.swipe_active)
-                return false;
-        }
-        else if ($(this).scrollTop() == 0) {
-            // allow vertical pointer events to fire (if one is configured)
-            var action = rcmail.swipe_select_action('down');
-            // Edge does not support pan-down, only pan-y
-            rcmail.env.swipe_parent.css('touch-action', action.callback ? (bw.edge ? 'none' : 'pan-down') : 'pan-y');
-            $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', action.callback ? (bw.edge ? 'none' : 'pan-down') : 'pan-y');
-        }
-    }).trigger('scroll');
-
     // swipe down on message list container
     opts.source_obj
         .on(touchevents.startevent, function(e) {
@@ -298,11 +283,13 @@ rcube_webmail.prototype.swipe_event = function(opts) {
                 else if (changeY < 0) {
                     $('#swipe-action').removeClass().hide();
 
-                    if (touchstart.scrollable) {
+                    if (touchstart.scrollable)
                         rcmail.env.swipe_parent.css('touch-action', 'pan-y');
-                        $(rcmail.gui_objects.messagelist).children('tbody > tr').css('touch-action', 'pan-y');
-                    }
 
+                    return;
+                }
+                else if (opts.vertical.target_obj.parent().scrollTop() != 0) {
+                    // prevent accidental firing during overscroll (eg fast scroll to top)
                     return;
                 }
             }
@@ -406,6 +393,20 @@ $(document).ready(function() {
             };
 
             rcmail.swipe_event(swipe_config);
+
+            // prevent accidental message list scroll when swipe active
+            rcmail.env.swipe_parent.on('scroll', function() {
+                if (!bw.pointer) {
+                    if (rcmail.env.swipe_active)
+                        return false;
+                }
+                else if ($(this).scrollTop() == 0) {
+                    // allow vertical pointer events to fire (if one is configured)
+                    var action = rcmail.swipe_select_action('down');
+                    // Edge does not support pan-down, only pan-y
+                    rcmail.env.swipe_parent.css('touch-action', action.callback ? (bw.edge ? 'none' : 'pan-down') : 'pan-y');
+                }
+            }).trigger('scroll');
         });
 
         // right/left/down swipe on message list
