@@ -24,7 +24,7 @@ folder for details on the skin license.
 Known issues
 ------------
 * No support in IE
-* Edge does not support `touch-action: pan-down;` CSS
+* Edge does not support `touch-action: pan-down;` CSS - [bug report](https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/10573036/)
 
 Install
 -------
