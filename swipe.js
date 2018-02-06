@@ -226,7 +226,7 @@ rcube_webmail.prototype.swipe_event = function(opts) {
             'startevent': 'touchstart',
             'moveevent': 'touchmove',
             'endevent': 'touchend',
-            'id': function(e) { return 1; },
+            'id': function(e) { return e.changedTouches.length == 1 ? e.changedTouches[0].identifier : -1; },
             'type': function(e) { return 'touch'; },
             'pos': function(e, x) { return e.originalEvent.targetTouches[0][ x ? 'pageX' : 'pageY']; }
         };
