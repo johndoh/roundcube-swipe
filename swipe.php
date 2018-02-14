@@ -31,20 +31,22 @@ class swipe extends rcube_plugin
     private $menu_file = '';
     private $config = array('left' => 'none', 'right' => 'none', 'down' => 'none');
     private $actions = array(
-        'vertical' => array(
-            'checkmail' => 'checkmail'
-        ),
-        'horizontal' => array(
-            'swipe-read' => 'swipe.markasread',
-            'swipe-flagged' => 'swipe.markasflagged',
-            'delete' => 'delete',
-            'forward' => 'forward',
-            'reply' => 'reply',
-            'reply-all' => 'replyall',
-            'move' => 'moveto',
-            'swipe-select' => 'select',
-            'archive' => 'archive.buttontext',
-            'markasjunk' => 'markasjunk.buttontitle'
+        'messagelist' => array(
+            'vertical' => array(
+                'checkmail' => 'checkmail'
+            ),
+            'horizontal' => array(
+                'swipe-read' => 'swipe.markasread',
+                'swipe-flagged' => 'swipe.markasflagged',
+                'delete' => 'delete',
+                'forward' => 'forward',
+                'reply' => 'reply',
+                'reply-all' => 'replyall',
+                'move' => 'moveto',
+                'swipe-select' => 'select',
+                'archive' => 'archive.buttontext',
+                'markasjunk' => 'markasjunk.buttontitle'
+            )
         )
     );
 
@@ -89,11 +91,11 @@ class swipe extends rcube_plugin
     {
         $disabled_actions = (array) rcube::get_instance()->config->get('disabled_actions');
         $laoded_plugins = $this->api->loaded_plugins();
-        $swipe_actions = $this->actions[$args['axis']];
+        $swipe_actions = $this->actions[$args['source']][$args['axis']];
         $args['name'] = $args['fieldname'];
 
         // Allow other plugins to interact with the action list
-        $data = rcube::get_instance()->plugins->exec_hook('swipe_actions_list', array('actions' => $swipe_actions, 'axis' => $args['axis']));
+        $data = rcube::get_instance()->plugins->exec_hook('swipe_actions_list', array('actions' => $swipe_actions, 'source' => $args['source'], 'axis' => $args['axis']));
 
         $select = new html_select($args);
         $select->add($this->gettext('none'), 'none');

@@ -82,6 +82,7 @@ The `swipe_actions_list` triggered when listing the available actions on the
 list options menu.
 *Arguments:*
  * actions
+ * source
  * axis
 
 *Return values:*
