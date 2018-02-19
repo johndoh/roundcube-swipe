@@ -89,14 +89,9 @@ rcube_webmail.prototype.swipe_action_callback = function(command, type, props) {
         // rather than a direct command call
         $('#' + this.buttons[command][0].id).trigger('click');
 
-        if (props.delay_disable) {
-            return {'prev_command': prev_command, 'prev_sel': prev_sel};
-        }
-        else {
-            // restore original state
-            this.enable_command(command, prev_command);
-            this.swipe_list_selection(props.uid, false, prev_sel);
-        }
+        // restore original state
+        this.enable_command(command, prev_command);
+        this.swipe_list_selection(props.uid, false, prev_sel);
     }
 };
 
@@ -144,20 +139,7 @@ rcube_webmail.prototype.swipe_select_action = function(direction, obj) {
     else if (this.env.swipe_actions[direction] == 'move') {
         action.class = 'move';
         action.text = 'moveto';
-        action.callback = function(p) {
-            p.delay_disable = true;
-
-            var ret = rcmail.swipe_action_callback('move', null, p);
-
-            // delay disabling the action until the next click
-            rcmail.env.swipe_delayed_action = function(e) {
-                if ($(e.target).parents('.folderlist').length == 0) {
-                    rcmail.enable_command('move', ret.prev_command);
-                    rcmail.swipe_list_selection(p.uid, false, ret.prev_sel);
-                    rcmail.env.swipe_delayed_action = null;
-                }
-            };
-        };
+        action.callback = function(p) { rcmail.swipe_action_callback('move', null, p); };
     }
     else if (this.env.swipe_actions[direction] == 'reply') {
         action.class = 'reply';
@@ -447,12 +429,6 @@ $(document).ready(function() {
             };
 
             rcmail.swipe_event(swipe_config);
-        });
-
-        // disable delayed commands (eg move)
-        $(document.body).on('click', function(e) {
-            if (rcmail.env.swipe_delayed_action)
-                rcmail.env.swipe_delayed_action(e);
         });
 
         // add swipe options to list options menu
