@@ -28,7 +28,7 @@
 class swipe extends rcube_plugin
 {
     public $task = 'mail';
-    private $menu_file = '';
+    private $menu_file = null;
     private $config = array('left' => 'none', 'right' => 'none', 'down' => 'none');
     private $actions = array(
         'messagelist' => array(
@@ -64,10 +64,12 @@ class swipe extends rcube_plugin
                     'right' => $this->config['right'],
                     'down' => $this->config['down']
                 ));
+
                 $this->add_texts('localization/', true);
                 $this->api->output->add_label('none', 'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select');
                 $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
                 $this->include_script('swipe.js');
+
                 $this->add_hook('render_page', array($this, 'options_menu'));
                 $this->api->output->add_handler('swipeoptionslist', array($this, 'options_list'));
             }
@@ -101,10 +103,10 @@ class swipe extends rcube_plugin
         $select->add($this->gettext('none'), 'none');
         foreach ($data['actions'] as $action => $text) {
             // Skip the action if it is in disabled_actions config option
-            // Skip the archive option if the plugin is not active and configured
+            // Also skip actions from disabled/not configured plugins
             if (in_array($action, $disabled_actions) || in_array('mail.' . $action, $disabled_actions) ||
-                $action == 'archive' && !$this->api->output->env['archive_folder'] ||
-                $action == 'markasjunk' && !in_array('markasjunk', $laoded_plugins)) {
+                ($action == 'archive' && !$this->api->output->env['archive_folder']) ||
+                ($action == 'markasjunk' && !in_array('markasjunk', $laoded_plugins))) {
                 continue;
             }
 
