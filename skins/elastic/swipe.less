@@ -7,7 +7,7 @@
 
 #swipe-action {
   position: absolute;
-  background-color: @color-black-shade-bg;
+  background-color: lighten(@color-black, 85%);
   color: @color-black;
   display: flex;
   align-items: center;
@@ -16,34 +16,34 @@
   &.checkmail,
   &.select,
   &.deselect {
-    background-color: @color-btn-secondary-background;
-    color: @color-btn-secondary;
+    background-color: lighten(@color-black, 50%);
+    color: #fff;
   }
 
   &.delete,
   &.junk {
-    background-color: @color-btn-danger-background;
-    color: @color-btn-danger;
+    background-color: @color-message-error;
+    color: #fff;
   }
 
   &.flagged,
   &.unflagged,
   &.read,
   &.unread {
-    background-color: @color-btn-primary-background;
-    color: @color-btn-primary;
+    background-color: @color-message-information;
+    color: #fff;
   }
 
   &.forward,
   &.reply,
   &.replyall {
-    background-color: @color-success;
+    background-color: @color-message-success;
     color: #fff;
   }
 
   &.move,
   &.archive {
-    background-color: @color-warning;
+    background-color: @color-message-warning;
     color: #fff;
   }
 
