@@ -49,29 +49,29 @@ class swipe extends rcube_plugin
             )
         )
     );
+    private $rcube;
 
     public function init()
     {
-        $rcmail = rcube::get_instance();
+        $this->rcube = rcube::get_instance();
         $this->config = $this->_load_config();
         $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
 
-        if ($rcmail->output->type == 'html' && $rcmail->action == '') {
+        if ($this->rcube->output->type == 'html' && $this->rcube->action == '') {
             $this->menu_file = '/' . $this->local_skin_path() . '/menu.html';
             if (is_file(slashify($this->home) . $this->menu_file)) {
-                $this->api->output->set_env('swipe_actions', array(
+                $this->rcube->output->set_env('swipe_actions', array(
                     'left' => $this->config['left'],
                     'right' => $this->config['right'],
                     'down' => $this->config['down']
                 ));
 
+                $this->add_hook('render_page', array($this, 'options_menu'));
                 $this->add_texts('localization/', true);
-                $this->api->output->add_label('none', 'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select');
                 $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
                 $this->include_script('swipe.js');
-
-                $this->add_hook('render_page', array($this, 'options_menu'));
-                $this->api->output->add_handler('swipeoptionslist', array($this, 'options_list'));
+                $this->rcube->output->add_label('none', 'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select');
+                $this->rcube->output->add_handler('swipeoptionslist', array($this, 'options_list'));
             }
         }
     }
@@ -85,8 +85,8 @@ class swipe extends rcube_plugin
         }
 
         // add additional menus from skins folder
-        $html = $this->api->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
-        $this->api->output->add_footer($html);
+        $html = $this->rcube->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
+        $this->rcube->output->add_footer($html);
     }
 
     public function options_list($args)
@@ -105,7 +105,7 @@ class swipe extends rcube_plugin
             // Skip the action if it is in disabled_actions config option
             // Also skip actions from disabled/not configured plugins
             if (in_array($action, $disabled_actions) || in_array('mail.' . $action, $disabled_actions) ||
-                ($action == 'archive' && !$this->api->output->env['archive_folder']) ||
+                ($action == 'archive' && !$this->rcube->output->env['archive_folder']) ||
                 ($action == 'markasjunk' && !in_array('markasjunk', $laoded_plugins))) {
                 continue;
             }
@@ -134,7 +134,7 @@ class swipe extends rcube_plugin
 
     private function _load_config()
     {
-        $config = rcube::get_instance()->config->get('swipe_actions', array());
+        $config = $this->rcube->config->get('swipe_actions', array());
 
         return array_key_exists('messagelist', $config) ? $config['messagelist'] : $this->config;
     }
