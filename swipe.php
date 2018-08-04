@@ -59,7 +59,8 @@ class swipe extends rcube_plugin
 
         if ($this->rcube->output->type == 'html' && $this->rcube->action == '') {
             $this->menu_file = '/' . $this->local_skin_path() . '/menu.html';
-            if (is_file(slashify($this->home) . $this->menu_file)) {
+            $filepath = slashify($this->home) . $this->menu_file;
+            if (is_file($filepath) && is_readable($filepath)) {
                 $this->rcube->output->set_env('swipe_actions', array(
                     'left' => $this->config['left'],
                     'right' => $this->config['right'],
