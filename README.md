@@ -78,8 +78,8 @@ The following actions are available for down swipe:
 
 Interaction with other plugins
 ------------------------------
-The `swipe_actions_list` triggered when listing the available actions on the
-list options menu.
+The `swipe_actions_list` hook is triggered when listing the available actions
+on the list options menu.
 *Arguments:*
  * actions
  * source
