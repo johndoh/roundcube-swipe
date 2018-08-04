@@ -3,7 +3,7 @@
 /**
  * Swipe
  *
- * Pplugin to add swipe actions to the mesasge list on touch devices
+ * Plugin to add swipe actions to the message list on touch devices
  *
  * @author Philip Weir
  *
