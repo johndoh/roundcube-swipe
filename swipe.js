@@ -177,7 +177,6 @@ rcube_webmail.prototype.swipe = {
                 rcmail.swipe.position_target(opts[swipedata.axis].target_obj, 0, swipedata.axis == 'vertical');
                 $('#swipe-action').removeClass().hide();
                 opts[swipedata.axis].target_obj.removeClass('swipe-active');
-                $(rcmail.gui_objects.messagelist).removeClass('swipe-block');
                 swipedata = {};
                 rcmail.swipe.active = null;
 
@@ -209,10 +208,6 @@ rcube_webmail.prototype.swipe = {
 
                     if (opts.parent_obj)
                         opts.parent_obj.off(swipeevents.moveevent, rcube_event.cancel);
-
-                    // set display block to make table height work on android
-                    if ($.isEmptyObject(rcmail.message_list.rows))
-                        $(rcmail.gui_objects.messagelist).addClass('swipe-block');
                 }
             })
             .on(swipeevents.moveevent, function(e) {
@@ -369,12 +364,16 @@ $(document).ready(function() {
             if (rcmail.message_list.draggable || !$('#' + props.row.id)[0].addEventListener)
                 return;
 
+            var row_width = $('#' + props.row.id).width();
+            // if no row width is available then use window width as fall back
+            row_width = row_width == 0 ? $(window).width() : row_width;
+
             var swipe_config = {
                 'source_obj': $('#' + props.row.id),
                 'parent_obj': rcmail.swipe.parent,
                 'horizontal': {
-                    'minmove': $('#' + props.row.id).width() * 0.25,
-                    'maxmove': $('#' + props.row.id).width() * 0.6,
+                    'minmove': row_width * 0.25,
+                    'maxmove': row_width * 0.6,
                     'action_sytle': function(o) {
                         return {
                             'top': o.position().top,
