@@ -45,7 +45,7 @@ class swipe extends rcube_plugin
                 'move' => 'moveto',
                 'swipe-select' => 'select',
                 'archive' => 'archive.buttontext',
-                'markasjunk' => 'markasjunk.buttontitle'
+                'markasjunk' => 'markasjunk.markasjunk'
             )
         )
     );

@@ -105,9 +105,17 @@ rcube_webmail.prototype.swipe = {
             action.callback = function(p) { rcmail.swipe.action_callback('forward', 'compose', p); };
         }
         else if (rcmail.env.swipe_actions[direction] == 'markasjunk') {
-            action.class = 'junk';
-            action.text = 'markasjunk.buttontitle';
-            action.callback = function(p) { rcmail.swipe.action_callback('plugin.markasjunk', null, p); };
+            var spam_folder = rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox;
+            if (!rcmail.env.markasjunk_spam_only && spam_folder) {
+                action.class = 'notjunk';
+                action.text = 'markasjunk.markasnotjunk';
+                action.callback = function(p) { rcmail.swipe.action_callback('plugin.markasjunk.not_junk', null, p); };
+            }
+            else {
+                action.class = 'junk';
+                action.text = 'markasjunk.markasjunk';
+                action.callback = spam_folder ? null : function(p) { rcmail.swipe.action_callback('plugin.markasjunk.junk', null, p); };
+            }
         }
         else if (rcmail.env.swipe_actions[direction] == 'move') {
             action.class = 'move';

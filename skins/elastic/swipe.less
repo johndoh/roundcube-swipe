@@ -40,7 +40,8 @@
 
   &.forward,
   &.reply,
-  &.replyall {
+  &.replyall,
+  &.notjunk {
     background-color: @color-message-success;
     color: #fff;
   }
@@ -132,6 +133,10 @@
 
       &.junk::before {
         content: @fa-var-fire;
+      }
+
+      &.notjunk::before {
+        content: @fa-var-inbox;
       }
     }
   }
