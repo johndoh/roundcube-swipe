@@ -253,10 +253,6 @@ rcube_webmail.prototype.swipe = {
                 var direction = (swipedata.axis == 'vertical' ? 'down' : (changeX < 0 ? 'left' : 'right'));
                 var action = rcmail.swipe.select_action(direction, opts.source_obj);
 
-                // skip if there is no event
-                if (!action.callback)
-                    return;
-
                 $('#swipe-action')
                     .data('callback', action.callback)
                         .children('div')
@@ -283,8 +279,9 @@ rcube_webmail.prototype.swipe = {
                 }
 
                 // the user must swipe a certain about before the action is activated, try to prevent accidental actions
-                if ((swipedata.axis == 'vertical' && changeY > opts[swipedata.axis].minmove) ||
-                    (swipedata.axis == 'horizontal' && (changeX < (opts[swipedata.axis].minmove * -1) || changeX > opts[swipedata.axis].minmove))) {
+                // do not activate if there is no callback
+                if (((swipedata.axis == 'vertical' && changeY > opts[swipedata.axis].minmove) ||
+                    (swipedata.axis == 'horizontal' && (changeX < (opts[swipedata.axis].minmove * -1) || changeX > opts[swipedata.axis].minmove))) && action.callback) {
                     $('#swipe-action').addClass(action.class);
                 }
                 else {
