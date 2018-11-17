@@ -100,8 +100,7 @@ class swipe extends rcube_plugin
         // Allow other plugins to interact with the action list
         $data = rcube::get_instance()->plugins->exec_hook('swipe_actions_list', array('actions' => $swipe_actions, 'source' => $args['source'], 'axis' => $args['axis']));
 
-        $select = new html_select($args);
-        $select->add($this->gettext('none'), 'none');
+        $options = array();
         foreach ($data['actions'] as $action => $text) {
             // Skip the action if it is in disabled_actions config option
             // Also skip actions from disabled/not configured plugins
@@ -111,8 +110,13 @@ class swipe extends rcube_plugin
                 continue;
             }
 
-            $select->add($this->gettext($text), $action);
+            $options[$action] = $this->gettext($text);
         }
+        asort($options);
+
+        $select = new html_select($args);
+        $select->add($this->gettext('none'), 'none');
+        $select->add(array_values($options), array_keys($options));
 
         return $select->show();
     }
