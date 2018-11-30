@@ -46,7 +46,7 @@ rcube_webmail.prototype.swipe = {
             rcmail.message_list.highlight_row(props.uid, true);
 
             var select_class = '';
-            if (select_class = $('#swipeoptions-menu').data('listselection-class')) {
+            if (select_class = rcmail.env.swipe_listselection_class) {
                 if (command == 'deselect' && rcmail.message_list.get_selection().length == 0)
                     $(rcmail.gui_objects.messagelist).removeClass(select_class);
                 else
@@ -409,30 +409,23 @@ $(document).ready(function() {
             rcmail.swipe.init(swipe_config);
         });
 
-        // add swipe options to list options menu
-        rcmail.addEventListener('menu-open', function(p) {
-            if (p.name == $('#swipeoptions-menu').data('options-menuname')) {
-                if (!rcmail.message_list.draggable) {
-                    // set form values
-                    $.each(['left', 'right', 'down'], function() {
-                        $('select[name="swipe_' + this + '"]:visible').val(rcmail.env.swipe_actions[this]);
-                    });
-
-                    $('fieldset.swipe').show();
-                }
-                else {
-                    $('fieldset.swipe').hide();
-                }
-            }
-        });
-
         // save swipe options
         rcmail.set_list_options_core = rcmail.set_list_options;
         rcmail.set_list_options = function(cols, sort_col, sort_order, threads, layout) {
             var post = {};
             $.each(['left', 'right', 'down'], function() {
-                if ($('select[name="swipe_' + this + '"]:visible').val() != rcmail.env.swipe_actions[this]) {
-                    rcmail.env.swipe_actions[this] = $('select[name="swipe_' + this + '"]:visible').val();
+                var fieldtype = rcmail.env['swipe_input_' + this];
+
+                if (fieldtype == 'radio') {
+                    selector = 'input[name="swipe_' + this + '"]:checked';
+                }
+                else if (fieldtype == 'select') {
+                    selector = 'select[name="swipe_' + this + '"]';
+                    selector += $(selector).length > 1 ? ':visible' : '';
+                }
+
+                if ($(selector).val() != rcmail.env.swipe_actions[this]) {
+                    rcmail.env.swipe_actions[this] = $(selector).val();
                     post['swipe_' + this] = rcmail.env.swipe_actions[this];
                 }
             });
@@ -446,4 +439,31 @@ $(document).ready(function() {
         if ($('#swipeoptions-menu > fieldset').find('select').length > 0)
             $('#swipeoptions-menu > fieldset').appendTo('#' + $('#swipeoptions-menu').data('options-menuid'));
     }
+
+    // add swipe options to list options menu
+    rcmail.addEventListener('menu-open', function(p) {
+        if (p.name == rcmail.env.swipe_menuname) {
+            if (!rcmail.message_list.draggable) {
+                // set form values
+                $.each(['left', 'right', 'down'], function() {
+                    var fieldtype = rcmail.env['swipe_input_' + this];
+                    if (fieldtype == 'radio') {
+                        selector = '#swipeoptions-' + this + '-' + rcmail.env.swipe_actions[this];
+                        selector += $(selector).length > 1 ? ':visible' : '';
+                        $(selector).prop('checked', true);
+                    }
+                    else if (fieldtype == 'select') {
+                        selector = 'select[name="swipe_' + this + '"]';
+                        selector += $(selector).length > 1 ? ':visible' : '';
+                        $(selector).val(rcmail.env.swipe_actions[this]);
+                    }
+                });
+
+                $('fieldset.swipe').show();
+            }
+            else {
+                $('fieldset.swipe').hide();
+            }
+        }
+    });
 });

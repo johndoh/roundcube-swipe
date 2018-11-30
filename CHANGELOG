@@ -1,6 +1,7 @@
 Roundcube Webmail Swipe
 =======================
 
+ * Allow menu to use select or radio buttons
  * Add support for markasjunk plugin
  * Support for pointer events
  * Add hooks for other plugins to interact with
