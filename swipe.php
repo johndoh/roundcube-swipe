@@ -98,7 +98,6 @@ class swipe extends rcube_plugin
         $swipe_actions = $this->actions[$args['source']][$args['axis']];
         $args['id'] = 'swipeoptions-' . $args['direction'];
         $args['name'] = 'swipe_' . $args['direction'];
-        $this->rcube->output->set_env('swipe_input_' . $args['direction'], $args['type']);
 
         // Allow other plugins to interact with the action list
         $data = rcube::get_instance()->plugins->exec_hook('swipe_actions_list', array('actions' => $swipe_actions, 'source' => $args['source'], 'axis' => $args['axis']));
@@ -125,13 +124,19 @@ class swipe extends rcube_plugin
                     $radio = new html_radiobutton(array('name' => $args['name'], 'id' => $fieldid, 'class' => $val, 'value' => $val));
                     $radio = $radio->show($this->config[$args['direction']]);
 
-                    if (isset($args['innertag']))
-                       $text = html::tag($args['innertag'], null, $text);
+                    if (isset($args['innertag'])) {
+                        $text = html::tag($args['innertag'], null, $text);
+                    }
+
+                    if (isset($args['spacer'])) {
+                        $text = $args['spacer'] . $text;
+                    }
 
                     $radio = html::label($fieldid, $radio . $text);
 
-                    if (isset($args['outertag']))
-                       $radio = html::tag($args['outertag'], null, $radio);
+                    if (isset($args['outertag'])) {
+                        $radio = html::tag($args['outertag'], null, $radio);
+                    }
 
                     $field .= $radio;
                 }
