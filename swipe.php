@@ -67,7 +67,7 @@ class swipe extends rcube_plugin
                     'down' => $this->config['down']
                 ));
 
-                $this->add_hook('render_page', array($this, 'options_menu'));
+                $this->add_hook('template_container', array($this, 'options_menu'));
                 $this->add_texts('localization/', true);
                 $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
                 $this->include_script('swipe.js');
@@ -80,15 +80,13 @@ class swipe extends rcube_plugin
 
     public function options_menu($args)
     {
-        // Other plugins may use template parsing method, this causes more than one render_page execution.
-        // We have to make sure the menu is added only once (when content is going to be written to client).
-        if (!$args['write']) {
-            return;
-        }
+        if ($args['name'] == 'listoptions') {
+            // add additional menus from skins folder to list options menu
+            $html = $this->rcube->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
+            $args['content'] .= $html;
 
-        // add additional menus from skins folder
-        $html = $this->rcube->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
-        $this->rcube->output->add_footer($html);
+            return $args;
+        }
     }
 
     public function options_list($args)

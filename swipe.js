@@ -435,9 +435,6 @@ $(document).ready(function() {
 
             rcmail.set_list_options_core(cols, sort_col, sort_order, threads, layout);
         };
-
-        if ($('#swipeoptions-menu > fieldset').find('select').length > 0)
-            $('#swipeoptions-menu > fieldset').appendTo('#' + $('#swipeoptions-menu').data('options-menuid'));
     }
 
     // add swipe options to list options menu

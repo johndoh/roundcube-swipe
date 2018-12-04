@@ -1,31 +1,29 @@
 <roundcube:object name="swipeenv" param="menuname" val="messagelistmenu" />
 <roundcube:object name="swipeenv" param="listselection_class" val="withselection" />
-<div id="swipeoptions-menu" data-options-menuid="listoptions-menu">
-    <fieldset class="swipe-menu">
-        <legend><roundcube:label name="swipe.swipeactions" /></legend>
-        <roundcube:if condition="!in_array('swipe_actions.messagelist.left', (array)config:dont_override)" />
-        <div class="form-group row swipeoptions-left">
-            <label for="swipeoptions-left" class="col-form-label col-sm-4"><roundcube:label name="swipe.swipeleft" /></label>
-            <div class="col-sm-8">
-                <roundcube:object name="swipeoptionslist" type="select" source="messagelist" axis="horizontal" direction="left" />
-            </div>
+<fieldset class="swipe-menu">
+    <legend><roundcube:label name="swipe.swipeactions" /></legend>
+    <roundcube:if condition="!in_array('swipe_actions.messagelist.left', (array)config:dont_override)" />
+    <div class="form-group row swipeoptions-left">
+        <label for="swipeoptions-left" class="col-form-label col-sm-4"><roundcube:label name="swipe.swipeleft" /></label>
+        <div class="col-sm-8">
+            <roundcube:object name="swipeoptionslist" type="select" source="messagelist" axis="horizontal" direction="left" />
         </div>
-        <roundcube:endif />
-        <roundcube:if condition="!in_array('swipe_actions.messagelist.right', (array)config:dont_override)" />
-        <div class="form-group row swipeoptions-right">
-            <label for="swipeoptions-right" class="col-form-label col-sm-4"><roundcube:label name="swipe.swiperight" /></label>
-            <div class="col-sm-8">
-                <roundcube:object name="swipeoptionslist" type="select" source="messagelist" axis="horizontal" direction="right" />
-            </div>
+    </div>
+    <roundcube:endif />
+    <roundcube:if condition="!in_array('swipe_actions.messagelist.right', (array)config:dont_override)" />
+    <div class="form-group row swipeoptions-right">
+        <label for="swipeoptions-right" class="col-form-label col-sm-4"><roundcube:label name="swipe.swiperight" /></label>
+        <div class="col-sm-8">
+            <roundcube:object name="swipeoptionslist" type="select" source="messagelist" axis="horizontal" direction="right" />
         </div>
-        <roundcube:endif />
-        <roundcube:if condition="!in_array('swipe_actions.messagelist.down', (array)config:dont_override)" />
-        <div class="form-group row swipeoptions-down">
-            <label for="swipeoptions-down" class="col-form-label col-sm-4"><roundcube:label name="swipe.swipedown" /></label>
-            <div class="col-sm-8">
-                <roundcube:object name="swipeoptionslist" type="select" source="messagelist" axis="vertical" direction="down" />
-            </div>
+    </div>
+    <roundcube:endif />
+    <roundcube:if condition="!in_array('swipe_actions.messagelist.down', (array)config:dont_override)" />
+    <div class="form-group row swipeoptions-down">
+        <label for="swipeoptions-down" class="col-form-label col-sm-4"><roundcube:label name="swipe.swipedown" /></label>
+        <div class="col-sm-8">
+            <roundcube:object name="swipeoptionslist" type="select" source="messagelist" axis="vertical" direction="down" />
         </div>
-        <roundcube:endif />
-    </fieldset>
-</div>
+    </div>
+    <roundcube:endif />
+</fieldset>
