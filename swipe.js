@@ -438,9 +438,10 @@ $(document).ready(function() {
     }
 
     // add swipe options to list options menu
-    rcmail.addEventListener('menu-open', function(p) {
-        if (p.name == rcmail.env.swipe_menuname) {
-            if (!rcmail.message_list.draggable && $('.swipe-menu').find('select,input').length > 0) {
+    rcmail.addEventListener('beforemenu-open', function(name) {
+        if (name == rcmail.env.swipe_menuname) {
+            var menu_obj = $('.swipe-menu');
+            if (!rcmail.message_list.draggable && menu_obj.find('select,input').length > 0) {
                 // set form values
                 $.each(['left', 'right', 'down'], function() {
                     var option_input = $('.swipeoptions-' + this).find('select,input').first();
@@ -457,10 +458,10 @@ $(document).ready(function() {
                     }
                 });
 
-                $('.swipe-menu').show();
+                menu_obj.show();
             }
             else {
-                $('.swipe-menu').hide();
+                menu_obj.hide();
             }
         }
     });
