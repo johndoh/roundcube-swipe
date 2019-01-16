@@ -442,27 +442,32 @@ $(document).ready(function() {
         if (name == rcmail.env.swipe_menuname) {
             var menu_obj = $('.swipe-menu');
             if (!rcmail.message_list.draggable && menu_obj.find('select,input').length > 0) {
-                // set form values
-                $.each(['left', 'right', 'down'], function() {
-                    var option_input = $('.swipeoptions-' + this).find('select,input').first();
-
-                    if ($(option_input).is('input[type="radio"]')) {
-                        selector = '#swipeoptions-' + this + '-' + rcmail.env.swipe_actions[this];
-                        selector += $(selector).length > 1 ? ':visible' : '';
-                        $(selector).prop('checked', true);
-                    }
-                    else if ($(option_input).is('select')) {
-                        selector = 'select[name="swipe_' + this + '"]';
-                        selector += $(selector).length > 1 ? ':visible' : '';
-                        $(selector).val(rcmail.env.swipe_actions[this]);
-                    }
-                });
-
                 menu_obj.show();
             }
             else {
                 menu_obj.hide();
             }
+        }
+    });
+
+    // set the values swipe options menu
+    rcmail.addEventListener('menu-open', function(p) {
+        if (p.name == rcmail.env.swipe_menuname && $('.swipe-menu').is(':visible')) {
+            // set form values
+            $.each(['left', 'right', 'down'], function() {
+                var option_input = $('.swipeoptions-' + this).find('select,input').first();
+
+                if ($(option_input).is('input[type="radio"]')) {
+                    selector = '#swipeoptions-' + this + '-' + rcmail.env.swipe_actions[this];
+                    selector += $(selector).length > 1 ? ':visible' : '';
+                    $(selector).prop('checked', true);
+                }
+                else if ($(option_input).is('select')) {
+                    selector = 'select[name="swipe_' + this + '"]';
+                    selector += $(selector).length > 1 ? ':visible' : '';
+                    $(selector).val(rcmail.env.swipe_actions[this]);
+                }
+            });
         }
     });
 });
