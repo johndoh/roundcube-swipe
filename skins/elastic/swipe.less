@@ -97,7 +97,7 @@
 
       &::before {
         .font-icon-class;
-        padding: 0 1.25em 0 0.5em;
+        margin: 0 .25em 0 .5em;
       }
 
       &.archive::before {
@@ -163,7 +163,12 @@
 
     &.left {
       position: absolute;
-      right: 0.5em;
+      right: 0;
+
+      > span::before {
+        float: right;
+        margin: 0 .5em 0 .25em;
+      }
     }
 
     &.down {
