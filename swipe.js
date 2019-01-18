@@ -30,12 +30,18 @@ rcube_webmail.prototype.swipe = {
         }
     },
 
-    action_callback: function(command, type, props) {
+    action_callback: function(command, props) {
         if (!props.uid)
             return;
 
         var prev_uid = rcmail.env.uid;
         rcmail.env.uid = props.uid;
+
+        var type = null;
+        if (matches = command.match(/([a-z0-9_-]+)\/([a-z0-9-_]+)/)) {
+            type = matches[1];
+            command = matches[2];
+        }
 
         if (type == 'mark') {
             rcmail.mark_message(command);
@@ -49,10 +55,12 @@ rcube_webmail.prototype.swipe = {
 
             var select_class = '';
             if (select_class = rcmail.env.swipe_listselection_class) {
-                if (command == 'deselect' && rcmail.message_list.get_selection().length == 0)
+                if (command == 'deselect' && rcmail.message_list.get_selection().length == 0) {
                     $(rcmail.gui_objects.messagelist).removeClass(select_class);
-                else
+                }
+                else {
                     $(rcmail.gui_objects.messagelist).addClass(select_class);
+                }
             }
         }
         else {
@@ -71,103 +79,84 @@ rcube_webmail.prototype.swipe = {
     },
 
     select_action: function(direction, obj) {
+        var actions = {
+              'archive': {
+                    'class': rcmail.env.archive_folder ? 'archive' : null,
+                    'text': rcmail.env.archive_folder ? 'archive.buttontext': null,
+                    'command': rcmail.env.archive_folder ? 'plugin.archive' : null
+                },
+                'checkmail': {
+                    'class': 'checkmail',
+                    'text': 'refresh',
+                    'callback': function(p) { rcmail.command('checkmail'); }
+                },
+                'delete': {
+                    'class': 'delete',
+                    'text': 'delete',
+                    'command': 'delete'
+                },
+                'forward': {
+                    'class': 'forward',
+                    'text': 'forward',
+                    'command': 'compose/forward'
+                },
+                'markasjunk': {
+                    'class': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'notjunk' : 'junk',
+                    'text': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'markasjunk.markasnotjunk' : 'markasjunk.markasjunk',
+                    'command': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'plugin.markasjunk.not_junk' : 'plugin.markasjunk.junk'
+                },
+                'move': {
+                    'class': 'move',
+                    'text': 'moveto',
+                    'command': 'move'
+                },
+                'reply': {
+                    'class': 'reply',
+                    'text': 'reply',
+                    'command': 'compose/reply'
+                },
+                'reply-all': {
+                    'class': 'replyall',
+                    'text': 'replyall',
+                    'command': 'compose/reply-all'
+                },
+                'swipe-read': {
+                    'class': obj && obj.hasClass('unread') ? 'read' : 'unread',
+                    'text': obj && obj.hasClass('unread') ? 'swipe.markasread' : 'swipe.markasunread',
+                    'command': obj && obj.hasClass('unread') ? 'mark/read' : 'mark/unread'
+                },
+                'swipe-flagged': {
+                    'class': obj && obj.hasClass('flagged') ? 'unflagged' : 'flagged',
+                    'text': obj && obj.hasClass('flagged') ? 'swipe.markasunflagged' : 'swipe.markasflagged',
+                    'command': obj && obj.hasClass('flagged') ? 'mark/unflagged' : 'mark/flagged'
+                },
+                'swipe-select': {
+                    'class': obj && obj.hasClass('selected') ? 'deselect' : 'select',
+                    'text': obj && obj.hasClass('selected') ? 'swipe.deselect' : 'select',
+                    'command': obj && obj.hasClass('selected') ? 'select/deselect' : 'select/select'
+                }
+            };
+
         var action = {
                 'class': '',
                 'text': '',
-                'callback': null
+                'callback': null,
+                'command': null
             };
 
         ret = rcmail.triggerEvent('swipe-action', {'direction': direction, 'obj': obj});
         if (ret !== undefined) {
             // abort if one of the handlers returned false
-            if (ret === false)
+            if (ret === false) {
                 return action;
-            else
+            }
+            else {
                 return ret;
-        }
-
-        if (rcmail.env.swipe_actions[direction] == 'archive' && rcmail.env.archive_folder) {
-            action.class = 'archive';
-            action.text = 'archive.buttontext';
-            action.callback = function(p) { rcmail.swipe.action_callback('plugin.archive', null, p); };
-        }
-        else if (rcmail.env.swipe_actions[direction] == 'checkmail') {
-            action.class = 'checkmail';
-            action.text = 'refresh';
-            action.callback = function(p) { rcmail.command('checkmail'); };
-        }
-        else if (rcmail.env.swipe_actions[direction] == 'delete') {
-            action.class = 'delete';
-            action.text = 'delete';
-            action.callback = function(p) { rcmail.swipe.action_callback('delete', null, p); };
-        }
-        else if (rcmail.env.swipe_actions[direction] == 'forward') {
-            action.class = 'forward';
-            action.text = 'forward';
-            action.callback = function(p) { rcmail.swipe.action_callback('forward', 'compose', p); };
-        }
-        else if (rcmail.env.swipe_actions[direction] == 'markasjunk') {
-            var spam_folder = rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox;
-            if (!rcmail.env.markasjunk_spam_only && spam_folder) {
-                action.class = 'notjunk';
-                action.text = 'markasjunk.markasnotjunk';
-                action.callback = function(p) { rcmail.swipe.action_callback('plugin.markasjunk.not_junk', null, p); };
-            }
-            else {
-                action.class = 'junk';
-                action.text = 'markasjunk.markasjunk';
-                action.callback = spam_folder ? null : function(p) { rcmail.swipe.action_callback('plugin.markasjunk.junk', null, p); };
             }
         }
-        else if (rcmail.env.swipe_actions[direction] == 'move') {
-            action.class = 'move';
-            action.text = 'moveto';
-            action.callback = function(p) { rcmail.swipe.action_callback('move', null, p); };
-        }
-        else if (rcmail.env.swipe_actions[direction] == 'reply') {
-            action.class = 'reply';
-            action.text = 'reply';
-            action.callback = function(p) { rcmail.swipe.action_callback('reply', 'compose', p); };
-        }
-        else if (rcmail.env.swipe_actions[direction] == 'reply-all') {
-            action.class = 'replyall';
-            action.text = 'replyall';
-            action.callback = function(p) { rcmail.swipe.action_callback('reply-all', 'compose', p); };
-        }
-        else if (rcmail.env.swipe_actions[direction] == 'swipe-read') {
-            if (obj.hasClass('unread')) {
-                action.class = 'read';
-                action.text = 'swipe.markasread';
-                action.callback = function(p) { rcmail.swipe.action_callback('read', 'mark', p); };
-            }
-            else {
-                action.class = 'unread';
-                action.text = 'swipe.markasunread';
-                action.callback = function(p) { rcmail.swipe.action_callback('unread', 'mark', p); };
-            }
-        }
-        else if (rcmail.env.swipe_actions[direction] == 'swipe-flagged') {
-            if (obj.hasClass('flagged')) {
-                action.class = 'unflagged';
-                action.text = 'swipe.markasunflagged';
-                action.callback = function(p) { rcmail.swipe.action_callback('unflagged', 'mark', p); };
-            }
-            else {
-                action.class = 'flagged';
-                action.text = 'swipe.markasflagged';
-                action.callback = function(p) { rcmail.swipe.action_callback('flagged', 'mark', p); };
-            }
-        }
-        else if (rcmail.env.swipe_actions[direction] == 'swipe-select') {
-            if (obj.hasClass('selected')) {
-                action.class = 'deselect';
-                action.text = 'swipe.deselect';
-                action.callback = function(p) { rcmail.swipe.action_callback('deselect', 'select', p); };
-            }
-            else {
-                action.class = 'select';
-                action.text = 'select';
-                action.callback = function(p) { rcmail.swipe.action_callback('select', 'select', p); };
+        else if (action = actions[rcmail.env.swipe_actions[direction]]) {
+            if (!action.callback && action.command) {
+                action.callback = function(p) { rcmail.swipe.action_callback(action.command, p); };
             }
         }
 
