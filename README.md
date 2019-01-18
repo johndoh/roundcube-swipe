@@ -24,7 +24,7 @@ folder for details on the skin license.
 Known issues
 ------------
 * No support in IE
-* Edge does not support `touch-action: pan-down;` CSS - [bug report](https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/10573036/)
+* No vertical swipe in Edge, no support for `touch-action: pan-down;` CSS - [bug report](https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/10573036/)
 
 Install
 -------
@@ -95,9 +95,12 @@ an action:
 {
   'class': '<class name for the action box>',
   'text': '<text displayed in the action box>',
-  'callback': function(p) { <your action here> }
+  'callback': function(p) { <your action here> },
+  'command': '<roundcube command>'
 };
 ```
+Note: Only 1 of callback and command need to be supplied. If no callback is
+defined then the command is passed to the standard Swipe callback function.
 
 [rcplugrepo]: https://plugins.roundcube.net/packages/johndoh/swipe
 [releases]: https://github.com/johndoh/roundcube-swipe/releases

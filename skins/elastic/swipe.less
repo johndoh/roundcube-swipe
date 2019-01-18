@@ -36,13 +36,26 @@
 
 #swipe-action {
   position: absolute;
-  background-color: lighten(@color-black, 85%);
-  color: @color-black;
   display: flex;
   align-items: center;
   border-collapse: collapse;
 
-  &.checkmail,
+  &.horizontal {
+    background-color: lighten(@color-black, 85%);
+    color: @color-black;
+  }
+
+  &.vertical {
+    background-color: transparent;
+    color: lighten(@color-black, 70%);
+    top: 2em;
+    height: 1.5em;
+  }
+
+  &.checkmail {
+    color: @color-main;
+  }
+
   &.select,
   &.deselect {
     background-color: lighten(@color-black, 50%);
@@ -78,23 +91,6 @@
   }
 
   > div {
-    &.left {
-      position: absolute;
-      right: 0.5em;
-    }
-
-    &.down {
-      margin: 0 auto;
-
-      > span::before {
-        width: auto;
-        float: none;
-        margin: 0;
-        margin-bottom: 0.2em;
-        padding: 0;
-      }
-    }
-
     > span {
       line-height: 100%;
       font-size: 1.2em;
@@ -102,6 +98,10 @@
       &::before {
         .font-icon-class;
         padding: 0 1.25em 0 0.5em;
+      }
+
+      &.archive::before {
+        content: @fa-var-archive;
       }
 
       &.checkmail::before {
@@ -116,12 +116,20 @@
         content: @fa-var-flag;
       }
 
+      &.unflagged::before {
+        .font-icon-regular(@fa-var-flag);
+      }
+
       &.forward::before {
         content: @fa-var-share;
       }
 
-      &.unflagged::before {
-        .font-icon-regular(@fa-var-flag);
+      &.junk::before {
+        content: @fa-var-fire-alt;
+      }
+
+      &.notjunk::before {
+        content: @fa-var-inbox;
       }
 
       &.move::before {
@@ -151,17 +159,30 @@
       &.deselect::before {
         .font-icon-regular(@fa-var-square);
       }
+    }
 
-      &.archive::before {
-        content: @fa-var-archive;
-      }
+    &.left {
+      position: absolute;
+      right: 0.5em;
+    }
 
-      &.junk::before {
-        content: @fa-var-fire-alt;
-      }
+    &.down {
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px lighten(@color-black, 75%);
 
-      &.notjunk::before {
-        content: @fa-var-inbox;
+      > span {
+        &::before {
+          float: none;
+          padding: 0;
+          margin: 10px;
+          line-height: 1em;
+        }
+
+        > span {
+          display: none;
+        }
       }
     }
   }
@@ -170,13 +191,4 @@
 .swipe-active,
 .swipe-active > td {
   background-color: @color-layout-list-background;
-}
-
-#messagelist-content {
-  overscroll-behavior: contain;
-}
-
-#messagelist.swipe-active {
-  display: block;
-  height: 100%;
 }

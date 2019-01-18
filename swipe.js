@@ -4,7 +4,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (C) 2018 Philip Weir
+ * Copyright (C) 2018-2019 Philip Weir
  *
  * The JavaScript code in this page is free software: you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
@@ -16,16 +16,18 @@
  */
 
 rcube_webmail.prototype.swipe = {
-    position_target: function(obj, pos, vertical) {
+    position_target: function(obj, pos, vertical, max_move) {
         var translate = '';
 
         if (pos)
-            translate = (vertical ? 'translatey' : 'translatex') + '(' + pos + 'px)';
+            translate = (vertical ? 'scale(' + (pos > 0 ? pos : 0) / max_move + ')' : 'translatex(' + pos + 'px)');
 
-        if (bw.edge && $(obj).is('tr')) // Edge does not support transform on <tr>s
+        if (bw.edge && $(obj).is('tr')) { // Edge does not support transform on <tr>s
             $(obj).children('td').css('transform', translate);
-        else
+        }
+        else {
             $(obj).css('transform', translate);
+        }
     },
 
     action_callback: function(command, type, props) {
@@ -246,7 +248,7 @@ rcube_webmail.prototype.swipe = {
                     return;
 
                 // do not interfere with normal message list scrolling
-                if (temp_axis == 'vertical' && (changeY < 0 || opts.vertical.target_obj.parent().scrollTop() != 0)) {
+                if (temp_axis == 'vertical' && rcmail.swipe.parent.scrollTop() != 0) {
                     if (bw.pointer && swipedata.scrollable)
                         rcmail.swipe.parent.css('touch-action', 'pan-y');
 
@@ -262,6 +264,7 @@ rcube_webmail.prototype.swipe = {
                 var action = rcmail.swipe.select_action(direction, opts.source_obj);
 
                 $('#swipe-action')
+                    .addClass(temp_axis)
                     .data('callback', action.callback)
                         .children('div')
                             .removeClass()
@@ -269,7 +272,8 @@ rcube_webmail.prototype.swipe = {
                             .children('span')
                                 .removeClass()
                                 .addClass(action.class)
-                                .text(rcmail.gettext(action.text));
+                                .children('span')
+                                    .text(rcmail.gettext(action.text));
 
                 if (!opts[swipedata.axis].target_obj.hasClass('swipe-active')) {
                     var action_style = opts[swipedata.axis].action_sytle(opts[swipedata.axis].target_obj);
@@ -277,7 +281,8 @@ rcube_webmail.prototype.swipe = {
                         'top': action_style.top,
                         'left': action_style.left,
                         'width': action_style.width,
-                        'height': action_style.height
+                        'height': action_style.height,
+                        'transform': ''
                     }).show();
                     opts[swipedata.axis].target_obj.addClass('swipe-active');
                     rcmail.swipe.active = swipedata.axis; // set the active swipe
@@ -294,11 +299,12 @@ rcube_webmail.prototype.swipe = {
                 }
                 else {
                     // reset the swipe if the user takes the row back to the start
-                    $('#swipe-action').removeClass();
+                    $('#swipe-action').removeClass(action.class);
                     $('#swipe-action').data('callback', null);
                 }
 
-                rcmail.swipe.position_target(opts[swipedata.axis].target_obj, swipedata.axis == 'vertical' ? changeY : changeX, swipedata.axis == 'vertical');
+                var vertical = swipedata.axis == 'vertical';
+                rcmail.swipe.position_target(opts[swipedata.axis].target_obj, vertical ? changeY : changeX, vertical, opts[swipedata.axis].maxmove);
             })
             .on(swipeevents.endevent, function(e) {
                 if (swipeevents.type(e) == 'touch' && swipedata.id == swipeevents.id(e) && rcmail.swipe.active &&
@@ -325,24 +331,24 @@ $(document).ready(function() {
                 return;
 
             rcmail.swipe.parent = messagelist_container;
-            rcmail.swipe.parent.prepend($('<div>').attr('id', 'swipe-action').html($('<div>').append($('<span>'))).hide());
+            rcmail.swipe.parent.prepend($('<div>').attr('id', 'swipe-action').html($('<div>').append($('<span>').append($('<span>')))).hide());
 
             // down swipe on message list container
             var swipe_config = {
                 'source_obj': rcmail.swipe.parent,
                 'parent_obj': null,
                 'vertical': {
-                    'minmove': $(window).height() * 0.1,
+                    'minmove': $(window).height() * 0.19,
                     'maxmove': $(window).height() * 0.2,
                     'action_sytle': function(o) {
                         return {
-                            'top': 0,
+                            'top': '',
                             'left': 0,
                             'width': rcmail.swipe.parent.width() + 'px',
-                            'height': $(window).height() * 0.2 + 'px'
+                            'height': ''
                         };
                     },
-                    'target_obj': $(rcmail.gui_objects.messagelist),
+                    'target_obj': $('#swipe-action'),
                     'uid': null
                 }
             };
@@ -359,7 +365,7 @@ $(document).ready(function() {
                     // allow vertical pointer events to fire (if one is configured)
                     var action = rcmail.swipe.select_action('down');
                     // Edge does not support pan-down, only pan-y
-                    rcmail.swipe.parent.css('touch-action', action.callback ? (bw.edge ? 'none' : 'pan-down') : 'pan-y');
+                    rcmail.swipe.parent.css('touch-action', action.callback && ! bw.edge ? 'pan-down' : 'pan-y');
                 }
             }).trigger('scroll');
         });
@@ -389,20 +395,6 @@ $(document).ready(function() {
                     },
                     'target_obj': $('#' + props.row.id),
                     'uid': props.uid
-                },
-                'vertical': {
-                    'minmove': $(window).height() * 0.1,
-                    'maxmove': $(window).height() * 0.2,
-                    'action_sytle': function(o) {
-                        return {
-                            'top': o.children('tbody').position().top,
-                            'left': o.children('tbody').position().left,
-                            'width': o.children('tbody').width() + 'px',
-                            'height': $(window).height() * 0.2 + 'px'
-                        };
-                    },
-                    'target_obj': $(rcmail.gui_objects.messagelist),
-                    'uid': null
                 }
             };
 
@@ -442,6 +434,9 @@ $(document).ready(function() {
         if (name == rcmail.env.swipe_menuname) {
             var menu_obj = $('.swipe-menu');
             if (!rcmail.message_list.draggable && menu_obj.find('select,input').length > 0) {
+                if (bw.edge)
+                    menu_obj.find('.swipeoptions-down').hide();
+
                 menu_obj.show();
             }
             else {
