@@ -90,8 +90,8 @@
     color: #fff;
   }
 
-  > div {
-    > span {
+  > .swipe-container {
+    > .swipe-action {
       line-height: 100%;
       font-size: 1.2em;
 
@@ -165,7 +165,7 @@
       position: absolute;
       right: 0;
 
-      > span::before {
+      > .swipe-action::before {
         float: right;
         margin: 0 .5em 0 .25em;
       }
@@ -177,7 +177,7 @@
       border-radius: 50%;
       box-shadow: 0 0 10px lighten(@color-black, 75%);
 
-      > span {
+      > .swipe-action {
         &::before {
           float: none;
           padding: 0;
@@ -185,7 +185,7 @@
           line-height: 1em;
         }
 
-        > span {
+        > .swipe-label {
           display: none;
         }
       }
@@ -193,7 +193,7 @@
   }
 }
 
-.swipe-active,
+.swipe-active:not(#swipe-action),
 .swipe-active > td {
   background-color: @color-layout-list-background;
 }

@@ -16,11 +16,18 @@
  */
 
 rcube_webmail.prototype.swipe = {
-    position_target: function(obj, pos, vertical, max_move) {
+    position_target: function(obj, pos, transition, max_move) {
         var translate = '';
 
-        if (pos)
-            translate = (vertical ? 'scale(' + (pos > 0 ? pos : 0) / max_move + ')' : 'translatex(' + pos + 'px)');
+        if (pos && transition) {
+            if (transition == 'scale') {
+                pos = pos > 0 ? pos : 0;
+                translate = 'scale(' + pos / max_move + ')';
+            }
+            else {
+                translate = transition + '(' + pos + 'px)';
+            }
+        }
 
         if (bw.edge && $(obj).is('tr')) { // Edge does not support transform on <tr>s
             $(obj).children('td').css('transform', translate);
@@ -147,12 +154,7 @@ rcube_webmail.prototype.swipe = {
         ret = rcmail.triggerEvent('swipe-action', {'direction': direction, 'obj': obj});
         if (ret !== undefined) {
             // abort if one of the handlers returned false
-            if (ret === false) {
-                return action;
-            }
-            else {
-                return ret;
-            }
+            return ret === false ? null : ret;
         }
         else if (action = actions[rcmail.env.swipe_actions[direction]]) {
             if (!action.callback && action.command) {
@@ -173,11 +175,15 @@ rcube_webmail.prototype.swipe = {
             'type': function(e) { return e.pointerType; },
             'pos': function(e, x) { return e.originalEvent[ x ? 'pageX' : 'pageY']; },
             'clearswipe': function(e) {
-                rcmail.swipe.position_target(opts[swipedata.axis].target_obj, 0, swipedata.axis == 'vertical');
-                $('#swipe-action').removeClass().hide();
+                rcmail.swipe.position_target(opts[swipedata.axis].target_obj, 0);
                 opts[swipedata.axis].target_obj.removeClass('swipe-active');
                 swipedata = {};
                 rcmail.swipe.active = null;
+
+                // reset #swipe-action
+                $('#swipe-action').removeClass().hide();
+                $('.swipe-container').attr('class', 'swipe-container');
+                $('.swipe-action').attr('class', 'swipe-action');
 
                 if (opts.parent_obj)
                     opts.parent_obj.off(swipeevents.moveevent, rcube_event.cancel);
@@ -252,17 +258,10 @@ rcube_webmail.prototype.swipe = {
                 var direction = (swipedata.axis == 'vertical' ? 'down' : (changeX < 0 ? 'left' : 'right'));
                 var action = rcmail.swipe.select_action(direction, opts.source_obj);
 
-                $('#swipe-action')
-                    .addClass(temp_axis)
-                    .data('callback', action.callback)
-                        .children('div')
-                            .removeClass()
-                            .addClass(direction)
-                            .children('span')
-                                .removeClass()
-                                .addClass(action.class)
-                                .children('span')
-                                    .text(rcmail.gettext(action.text));
+                $('#swipe-action').attr('class', temp_axis).data('callback', action.callback);
+                $('.swipe-container').attr('class', 'swipe-container ' + direction);
+                $('.swipe-action').attr('class', 'swipe-action ' + action.class);
+                $('.swipe-label').text(rcmail.gettext(action.text));
 
                 if (!opts[swipedata.axis].target_obj.hasClass('swipe-active')) {
                     var action_style = opts[swipedata.axis].action_sytle(opts[swipedata.axis].target_obj);
@@ -270,8 +269,7 @@ rcube_webmail.prototype.swipe = {
                         'top': action_style.top,
                         'left': action_style.left,
                         'width': action_style.width,
-                        'height': action_style.height,
-                        'transform': ''
+                        'height': action_style.height
                     }).show();
                     opts[swipedata.axis].target_obj.addClass('swipe-active');
                     rcmail.swipe.active = swipedata.axis; // set the active swipe
@@ -292,8 +290,8 @@ rcube_webmail.prototype.swipe = {
                     $('#swipe-action').data('callback', null);
                 }
 
-                var vertical = swipedata.axis == 'vertical';
-                rcmail.swipe.position_target(opts[swipedata.axis].target_obj, vertical ? changeY : changeX, vertical, opts[swipedata.axis].maxmove);
+                var pos = swipedata.axis == 'vertical' ? changeY : changeX;
+                rcmail.swipe.position_target(opts[swipedata.axis].target_obj, pos, opts[swipedata.axis].transition, opts[swipedata.axis].maxmove);
             })
             .on(swipeevents.endevent, function(e) {
                 if (swipeevents.type(e) == 'touch' && swipedata.id == swipeevents.id(e) && rcmail.swipe.active &&
@@ -319,8 +317,12 @@ $(document).ready(function() {
             if (rcmail.message_list.draggable || !messagelist_container[0].addEventListener)
                 return;
 
+            var swipe_action = $('<div>').attr('id', 'swipe-action').append(
+                $('<div>').addClass('swipe-container').append($('<div>').addClass('swipe-action').append($('<span>').addClass('swipe-label')))
+            );
+
             rcmail.swipe.parent = messagelist_container;
-            rcmail.swipe.parent.prepend($('<div>').attr('id', 'swipe-action').html($('<div>').append($('<span>').append($('<span>')))).hide());
+            rcmail.swipe.parent.prepend(swipe_action.hide());
 
             // down swipe on message list container
             var swipe_config = {
@@ -329,6 +331,7 @@ $(document).ready(function() {
                 'vertical': {
                     'minmove': $(window).height() * 0.19,
                     'maxmove': $(window).height() * 0.2,
+                    'transition': 'scale',
                     'action_sytle': function(o) {
                         return {
                             'top': '',
@@ -374,6 +377,7 @@ $(document).ready(function() {
                 'horizontal': {
                     'minmove': row_width * 0.25,
                     'maxmove': row_width * 0.6,
+                    'transition': 'translatex',
                     'action_sytle': function(o) {
                         return {
                             'top': o.position().top,
