@@ -439,6 +439,7 @@ $(document).ready(function() {
     });
 
     // set the values swipe options menu
+    // done in menu-open not beforemenu-open because of Elastic Bootstrap popover handling
     rcmail.addEventListener('menu-open', function(p) {
         if (p.name == rcmail.env.swipe_menuname && $('.swipe-menu').is(':visible')) {
             // set form values
@@ -446,13 +447,13 @@ $(document).ready(function() {
                 var option_input = $('.swipeoptions-' + this).find('select,input').first();
 
                 if ($(option_input).is('input[type="radio"]')) {
+                    // FIXME: this does not work in Elastic
                     selector = '#swipeoptions-' + this + '-' + rcmail.env.swipe_actions[this];
                     selector += $(selector).length > 1 ? ':visible' : '';
                     $(selector).prop('checked', true);
                 }
                 else if ($(option_input).is('select')) {
                     selector = 'select[name="swipe_' + this + '"]';
-                    selector += $(selector).length > 1 ? ':visible' : '';
                     $(selector).val(rcmail.env.swipe_actions[this]);
                 }
             });
