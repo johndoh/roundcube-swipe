@@ -130,7 +130,7 @@ class swipe extends rcube_plugin
                         $text = $args['spacer'] . $text;
                     }
 
-                    $radio = html::label($fieldid, $radio . $text);
+                    $radio .= html::label($fieldid, $text);
 
                     if (isset($args['outertag'])) {
                         $radio = html::tag($args['outertag'], null, $radio);

@@ -422,7 +422,7 @@ $(document).ready(function() {
         };
     }
 
-    // add swipe options to list options menu
+    // show swipe options in the list options menu
     rcmail.addEventListener('beforemenu-open', function(name) {
         if (name == rcmail.env.swipe_menuname) {
             var menu_obj = $('.swipe-menu');
@@ -439,22 +439,16 @@ $(document).ready(function() {
     });
 
     // set the values swipe options menu
-    // done in menu-open not beforemenu-open because of Elastic Bootstrap popover handling
+    // done in menu-open not beforemenu-open because of Elastic's Bootstrap popovers
     rcmail.addEventListener('menu-open', function(p) {
         if (p.name == rcmail.env.swipe_menuname && $('.swipe-menu').is(':visible')) {
-            // set form values
-            $.each(['left', 'right', 'down'], function() {
-                var option_input = $('.swipeoptions-' + this).find('select,input').first();
-
-                if ($(option_input).is('input[type="radio"]')) {
-                    // FIXME: this does not work in Elastic
-                    selector = '#swipeoptions-' + this + '-' + rcmail.env.swipe_actions[this];
-                    selector += $(selector).length > 1 ? ':visible' : '';
-                    $(selector).prop('checked', true);
+            $.each(rcmail.env.swipe_actions, function(direction, action) {
+                var option_input = $('.swipeoptions-' + direction).find('select,input');
+                if (option_input.is('input[type="radio"]')) {
+                    option_input.filter('[value="' + action + '"]').prop('checked', true);
                 }
-                else if ($(option_input).is('select')) {
-                    selector = 'select[name="swipe_' + this + '"]';
-                    $(selector).val(rcmail.env.swipe_actions[this]);
+                else if (option_input.is('select')) {
+                    option_input.val(action);
                 }
             });
         }
