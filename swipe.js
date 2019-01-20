@@ -314,6 +314,21 @@ rcube_webmail.prototype.swipe = {
                 if (swipedata.axis)
                     swipeevents.clearswipe(e);
             });
+    },
+
+    setup_options: function() {
+        $.each(rcmail.env.swipe_actions, function(direction, action) {
+            var option_input = $('.swipeoptions-' + direction).find('select,input');
+            if (option_input.is('input[type="radio"]')) {
+                option_input.filter('[value="' + action + '"]').prop('checked', true);
+            }
+            else if (option_input.is('select') && option_input.first().children('option').length > 0) {
+                option_input.val(action);
+            }
+            else {
+                $('.swipeoptions-' + direction).hide();
+            }
+        });
     }
 };
 
@@ -378,6 +393,14 @@ $(document).ready(function() {
                         return false;
                     }
                 });
+
+                rcmail.register_command('plugin.swipe.options', function() {
+                    rcmail.show_popup_dialog($('#swipeoptions').clone(), rcmail.get_label('swipeactions', 'swipe'), [
+                        { text: rcmail.get_label('save'), 'class': 'mainaction save', click: function(e, ui, dialog) { rcmail.set_list_options(); (rcmail.is_framed() ? parent.$ : $)(dialog || this).dialog('close'); } },
+                        { text: rcmail.get_label('cancel'), 'class': 'cancel', click: function(e, ui, dialog) { (rcmail.is_framed() ? parent.$ : $)(dialog || this).dialog('close'); } }
+                    ]);
+                    rcmail.swipe.setup_options();
+                }, true);
             }
         });
 
@@ -461,18 +484,7 @@ $(document).ready(function() {
     // done in menu-open not beforemenu-open because of Elastic's Bootstrap popovers
     rcmail.addEventListener('menu-open', function(p) {
         if (p.name == rcmail.env.swipe_menuname && $('.swipe-menu').is(':visible')) {
-            $.each(rcmail.env.swipe_actions, function(direction, action) {
-                var option_input = $('.swipeoptions-' + direction).find('select,input');
-                if (option_input.is('input[type="radio"]')) {
-                    option_input.filter('[value="' + action + '"]').prop('checked', true);
-                }
-                else if (option_input.is('select') && option_input.first().children('option').length > 0) {
-                    option_input.val(action);
-                }
-                else {
-                    $('.swipeoptions-' + direction).hide();
-                }
-            });
+            rcmail.swipe.setup_options();
         }
     });
 });

@@ -84,22 +84,43 @@ class swipe extends rcube_plugin
                     'down' => $config['down']
                 ));
 
-                $this->add_hook('template_container', array($this, 'options_menu'));
                 $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
                 $this->include_script('swipe.js');
-                $this->rcube->output->add_label('swipe.markasflagged', 'swipe.markasunflagged', 'swipe.markasread', 'swipe.markasunread',
-                    'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select', 'swipe.deselect', 'compose');
+                $this->rcube->output->add_label('swipe.swipeactions', 'swipe.markasflagged', 'swipe.markasunflagged', 'swipe.markasread',
+                    'swipe.markasunread', 'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select', 'swipe.deselect', 'compose');
                 $this->rcube->output->add_handler('swipeoptionslist', array($this, 'options_list'));
+
+                if ($this->rcube->task == 'mail') {
+                    $this->add_hook('template_container', array($this, 'options_menu'));
+                }
+                elseif ($this->rcube->task == 'addressbook') {
+                    $this->add_button(array(
+                            'command' => 'plugin.swipe.options',
+                            'type' => 'link',
+                            'class' => 'button swipe',
+                            'title' => 'swipe.swipeactions',
+                            'innerclass' => 'inner',
+                            'label' => 'swipe.swipeactions'
+                        ), 'toolbar');
+                    $this->add_hook('render_page', array($this, 'options_menu'));
+                }
             }
         }
     }
 
     public function options_menu($args)
     {
-        if ($args['name'] == 'listoptions') {
+        if ($args['name'] == 'listoptions' || ($this->rcube->task == 'addressbook' && $args['write'])) {
             // add additional menus from skins folder to list options menu
             $html = $this->rcube->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
-            $args['content'] .= $html;
+
+            if ($this->rcube->task == 'addressbook') {
+                $html = html::div(array('id' => 'swipeoptions', 'class' => 'popupmenu'), $html);
+                $args['content'] = str_replace('</body>', $html . '</body>', $args['content']);
+            }
+            else {
+                $args['content'] .= $html;
+            }
 
             return $args;
         }

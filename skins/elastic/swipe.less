@@ -207,3 +207,30 @@
 .swipe-active > td {
   background-color: @color-layout-list-background;
 }
+
+.toolbar a.button.swipe {
+  display: none;
+}
+
+html.layout-small,
+html.layout-phone {
+  .toolbar {
+    a.button {
+      &.swipe {
+        display: inline-block;
+
+        &:before {
+          content: @fa-var-hand-point-up;
+        }
+      }
+    }
+  }
+}
+
+fieldset.swipe-menu {
+  margin: .25em;
+
+  legend {
+    display: none;
+  }
+}
