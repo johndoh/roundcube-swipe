@@ -435,7 +435,7 @@ $(document).ready(function() {
     rcmail.addEventListener('beforemenu-open', function(name) {
         if (name == rcmail.env.swipe_menuname) {
             var menu_obj = $('.swipe-menu');
-            if (!rcmail.env.swipe_list.draggable && menu_obj.find('select,input').length > 0) {
+            if (!rcmail.env.swipe_list.draggable && menu_obj.find('select > option,input').length > 0) {
                 if (bw.edge)
                     menu_obj.find('.swipeoptions-down').hide();
 

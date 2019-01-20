@@ -57,6 +57,7 @@ List Options menu.
 
 Supported actions
 -----------------
+*Mesasge List:*
 The following actions are available for left/right swipe:
 
 * `archive` - Archive the message (Requires the Roundcube Archive plugin)
@@ -75,6 +76,15 @@ The following actions are available for down swipe:
 
 * `checkmail` - Check for new messages in the current folder
 * `none` - Swipe disabled
+
+disabled_actions and dont_override
+----------------------------------
+This plugin respects the disabled_actions config option for Roundcube commands.
+To prevent users from overriding swipe config you can add any of the following
+to dont_override:
+* `swipe_actions` - Prevent overriding all swipe config
+* `swipe_actions.list` - e.g. `swipe_actions.mesasgelist` Prevent overriding of the swipe actions on a specific list, e.g. mesasgelist
+* `swipe_actions.list.direction` - e.g. `swipe_actions.mesasgelist.left` Prevent overriding of the swipe actions on a specific list and direction
 
 Interaction with other plugins
 ------------------------------
