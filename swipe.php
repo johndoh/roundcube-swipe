@@ -29,7 +29,9 @@ class swipe extends rcube_plugin
 {
     public $task = 'mail';
     private $menu_file = null;
-    private $config = array('left' => 'none', 'right' => 'none', 'down' => 'none');
+    private $config = array(
+        'messagelist' => array('left' => 'none', 'right' => 'none', 'down' => 'none')
+    );
     private $actions = array(
         'messagelist' => array(
             'vertical' => array(
@@ -65,10 +67,11 @@ class swipe extends rcube_plugin
             $this->menu_file = '/' . $this->local_skin_path() . '/includes/menu.html';
             $filepath = slashify($this->home) . $this->menu_file;
             if (is_file($filepath) && is_readable($filepath)) {
+                $config = $this->config[$this->list_type];
                 $this->rcube->output->set_env('swipe_actions', array(
-                    'left' => $this->config['left'],
-                    'right' => $this->config['right'],
-                    'down' => $this->config['down']
+                    'left' => $config['left'],
+                    'right' => $config['right'],
+                    'down' => $config['down']
                 ));
 
                 $this->add_hook('template_container', array($this, 'options_menu'));
@@ -117,12 +120,13 @@ class swipe extends rcube_plugin
             $options = array('none' => $this->gettext('none')) + $options;
         }
 
+        $config = $this->config[$this->list_type];
         switch ($args['type']) {
             case 'radio':
                 foreach ($options as $val => $text) {
                     $fieldid = $args['id'] . '-' . $val;
                     $radio = new html_radiobutton(array('name' => $args['name'], 'id' => $fieldid, 'class' => $val, 'value' => $val));
-                    $radio = $radio->show($this->config[$args['direction']]);
+                    $radio = $radio->show($config[$args['direction']]);
                     $field = $radio . html::label($fieldid, $text);
                 }
 
@@ -130,7 +134,7 @@ class swipe extends rcube_plugin
             case 'select':
                 $select = new html_select($args);
                 $select->add(array_values($options), array_keys($options));
-                $field = $select->show($this->config[$args['direction']]);
+                $field = $select->show($config[$args['direction']]);
 
                 break;
         }
@@ -140,32 +144,29 @@ class swipe extends rcube_plugin
 
     public function save_settings()
     {
-        $config = array();
+        $save = false;
         foreach (array('left', 'right', 'down') as $direction) {
             if (($prop = rcube_utils::get_input_value('swipe_' . $direction, rcube_utils::INPUT_POST)) && $this->_allowed_action($direction)) {
-                $config[$direction] = $prop;
+                $this->config[$this->list_type][$direction] = $prop;
+                $save = true;
             }
         }
 
-        if (count($config) > 0) {
-            $config = array_merge($this->config, $config);
-            $config = array('swipe_actions' => array($this->list_type => $config));
-            rcube::get_instance()->user->save_prefs($config);
+        if ($save) {
+            rcube::get_instance()->user->save_prefs(array('swipe_actions' => $this->config));
         }
     }
 
     private function _load_config()
     {
         $config = $this->rcube->config->get('swipe_actions', array());
-        $config = array_key_exists($this->list_type, $config) ? $config[$this->list_type] : array();
 
-        // add user config
-        foreach ($config as $dirction => $action) {
-            if ($this->_allowed_action($dirction, $action)) {
-                $this->config[$dirction] = $action;
-            }
-            else {
-                $this->config[$dirction] = "none";
+        // remove disabled actions
+        foreach ($config as $list => $opts) {
+            foreach ($opts as $dirction => $action) {
+                if ($this->_allowed_action($dirction, $action)) {
+                    $this->config[$list][$dirction] = $action;
+                }
             }
         }
     }
