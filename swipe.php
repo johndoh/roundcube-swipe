@@ -56,6 +56,7 @@ class swipe extends rcube_plugin
     {
         $this->rcube = rcube::get_instance();
         $this->list_type = 'messagelist';
+        $this->add_texts('localization/');
         $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
 
         $this->_load_config();
@@ -71,10 +72,10 @@ class swipe extends rcube_plugin
                 ));
 
                 $this->add_hook('template_container', array($this, 'options_menu'));
-                $this->add_texts('localization/', true);
                 $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
                 $this->include_script('swipe.js');
-                $this->rcube->output->add_label('none', 'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select');
+                $this->rcube->output->add_label('swipe.markasflagged', 'swipe.markasunflagged', 'swipe.markasread', 'swipe.markasunread',
+                    'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select', 'swipe.deselect');
                 $this->rcube->output->add_handler('swipeoptionslist', array($this, 'options_list'));
                 $this->rcube->output->add_handler('swipeenv', array($this, 'set_env'));
             }
