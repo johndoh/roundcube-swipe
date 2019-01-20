@@ -105,8 +105,7 @@ The `swipe_actions_list` hook is triggered when listing the available actions
 on the list options menu.
 *Arguments:*
  * actions
- * source
- * axis
+ * direction
 
 *Return values:*
  * actions

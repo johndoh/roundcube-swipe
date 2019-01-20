@@ -59,16 +59,6 @@ rcube_webmail.prototype.swipe = {
         }
         else if (type == 'select') {
             rcmail.env.swipe_list.highlight_row(props.uid, true);
-
-            var select_class = '';
-            if (select_class = rcmail.env.swipe_listselection_class) {
-                if (command == 'deselect' && rcmail.env.swipe_list.get_selection().length == 0) {
-                    $(rcmail.env.swipe_list.list).removeClass(select_class);
-                }
-                else {
-                    $(rcmail.env.swipe_list.list).addClass(select_class);
-                }
-            }
         }
         else {
             var prev_command = rcmail.commands[command];
@@ -331,6 +321,7 @@ $(document).ready(function() {
     if (window.rcmail && ((bw.touch && !bw.ie) || bw.pointer)) {
         rcmail.addEventListener('init', function() {
             rcmail.env.swipe_list = rcmail.task == 'addressbook' ? rcmail.contact_list : rcmail.message_list;
+            rcmail.env.swipe_menuname = 'messagelistmenu';
 
             var list_container = $(rcmail.env.swipe_list.list).parent();
             if (rcmail.env.swipe_list.draggable || !list_container[0].addEventListener)
