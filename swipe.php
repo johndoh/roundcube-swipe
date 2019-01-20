@@ -77,7 +77,6 @@ class swipe extends rcube_plugin
                 $this->rcube->output->add_label('swipe.markasflagged', 'swipe.markasunflagged', 'swipe.markasread', 'swipe.markasunread',
                     'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select', 'swipe.deselect');
                 $this->rcube->output->add_handler('swipeoptionslist', array($this, 'options_list'));
-                $this->rcube->output->add_handler('swipeenv', array($this, 'set_env'));
             }
         }
     }
@@ -95,12 +94,13 @@ class swipe extends rcube_plugin
 
     public function options_list($args)
     {
-        $swipe_actions = $this->actions[$args['source']][$args['axis']];
+        $axis = $args['direction'] == 'down' ? 'vertical' : 'horizontal';
+        $swipe_actions = $this->actions[$this->list_type][$axis];
         $args['id'] = 'swipeoptions-' . $args['direction'];
         $args['name'] = 'swipe_' . $args['direction'];
 
         // Allow other plugins to interact with the action list
-        $data = rcube::get_instance()->plugins->exec_hook('swipe_actions_list', array('actions' => $swipe_actions, 'source' => $args['source'], 'axis' => $args['axis']));
+        $data = rcube::get_instance()->plugins->exec_hook('swipe_actions_list', array('actions' => $swipe_actions, 'direction' => $args['direction']));
 
         $options = array();
         foreach ($data['actions'] as $action => $text) {
@@ -123,22 +123,7 @@ class swipe extends rcube_plugin
                     $fieldid = $args['id'] . '-' . $val;
                     $radio = new html_radiobutton(array('name' => $args['name'], 'id' => $fieldid, 'class' => $val, 'value' => $val));
                     $radio = $radio->show($this->config[$args['direction']]);
-
-                    if (isset($args['innertag'])) {
-                        $text = html::tag($args['innertag'], null, $text);
-                    }
-
-                    if (isset($args['spacer'])) {
-                        $text = $args['spacer'] . $text;
-                    }
-
-                    $radio .= html::label($fieldid, $text);
-
-                    if (isset($args['outertag'])) {
-                        $radio = html::tag($args['outertag'], null, $radio);
-                    }
-
-                    $field .= $radio;
+                    $field = $radio . html::label($fieldid, $text);
                 }
 
                 break;
@@ -151,11 +136,6 @@ class swipe extends rcube_plugin
         }
 
         return $field;
-    }
-
-    public function set_env($args)
-    {
-        $this->rcube->output->set_env('swipe_' . $args['param'], $args['val']);
     }
 
     public function save_settings()
