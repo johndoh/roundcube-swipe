@@ -50,10 +50,12 @@ class swipe extends rcube_plugin
         )
     );
     private $rcube;
+    private $list_type;
 
     public function init()
     {
         $this->rcube = rcube::get_instance();
+        $this->list_type = 'messagelist';
         $this->config = $this->_load_config();
         $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
 
@@ -113,7 +115,11 @@ class swipe extends rcube_plugin
             $options[$action] = $this->gettext($text);
         }
         asort($options);
-        $options = array('none' => $this->gettext('none')) + $options;
+
+        // don't add none if there are no available actions, JS detects empty lists and hides the option
+        if (count($options) > 0) {
+            $options = array('none' => $this->gettext('none')) + $options;
+        }
 
         switch ($args['type']) {
             case 'radio':
@@ -167,7 +173,7 @@ class swipe extends rcube_plugin
 
         if (count($config) > 0) {
             $config = array_merge($this->config, $config);
-            $config = array('swipe_actions' => array('messagelist' => $config));
+            $config = array('swipe_actions' => array($this->list_type => $config));
             rcube::get_instance()->user->save_prefs($config);
         }
     }
@@ -176,6 +182,6 @@ class swipe extends rcube_plugin
     {
         $config = $this->rcube->config->get('swipe_actions', array());
 
-        return array_key_exists('messagelist', $config) ? $config['messagelist'] : $this->config;
+        return array_key_exists($this->list_type, $config) ? $config[$this->list_type] : $this->config;
     }
 }
