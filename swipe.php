@@ -27,7 +27,7 @@
  */
 class swipe extends rcube_plugin
 {
-    public $task = 'mail';
+    public $task = 'mail|addressbook';
     private $menu_file = null;
     private $config = array('left' => 'none', 'right' => 'none', 'down' => 'none');
     private $actions = array(
@@ -47,6 +47,15 @@ class swipe extends rcube_plugin
                 'swipe-read' => 'swipe.markasread',
                 'swipe-select' => 'select'
             )
+        ),
+        'contactlist' => array(
+            'vertical' => array(),
+            'horizontal' => array(
+                'attvcard' => 'vcard_attachments.forwardvcard',
+                'compose' => 'compose',
+                'delete' => 'delete',
+                'swipe-select' => 'select'
+            )
         )
     );
     private $rcube;
@@ -55,7 +64,7 @@ class swipe extends rcube_plugin
     public function init()
     {
         $this->rcube = rcube::get_instance();
-        $this->list_type = 'messagelist';
+        $this->list_type = $this->rcube->task == 'addressbook' ? 'contactlist' : 'messagelist';
         $this->add_texts('localization/');
         $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
 
@@ -75,7 +84,7 @@ class swipe extends rcube_plugin
                 $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
                 $this->include_script('swipe.js');
                 $this->rcube->output->add_label('swipe.markasflagged', 'swipe.markasunflagged', 'swipe.markasread', 'swipe.markasunread',
-                    'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select', 'swipe.deselect');
+                    'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select', 'swipe.deselect', 'compose');
                 $this->rcube->output->add_handler('swipeoptionslist', array($this, 'options_list'));
                 $this->rcube->output->add_handler('swipeenv', array($this, 'set_env'));
             }

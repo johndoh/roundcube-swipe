@@ -41,8 +41,8 @@ rcube_webmail.prototype.swipe = {
         if (!props.uid)
             return;
 
-        var prev_uid = rcmail.env.uid;
-        rcmail.env.uid = props.uid;
+        var prev_uid = rcmail.env[rcmail.env.task == 'addressbook' ? 'cid' : 'uid'];
+        rcmail.env[rcmail.env.task == 'addressbook' ? 'cid' : 'uid'] = props.uid;
 
         var type = null;
         if (matches = command.match(/([a-z0-9_-]+)\/([a-z0-9-_]+)/)) {
@@ -82,7 +82,7 @@ rcube_webmail.prototype.swipe = {
             rcmail.enable_command(command, prev_command);
         }
 
-        rcmail.env.uid = prev_uid;
+        rcmail.env[rcmail.env.task == 'addressbook' ? 'cid' : 'uid'] = prev_uid;
     },
 
     select_action: function(direction, obj) {
@@ -92,10 +92,20 @@ rcube_webmail.prototype.swipe = {
                     'text': rcmail.env.archive_folder ? 'archive.buttontext': null,
                     'command': rcmail.env.archive_folder ? 'plugin.archive' : null
                 },
+                'attvcard': {
+                    'class': 'attvcard',
+                    'text': 'vcard_attachments.forwardvcard',
+                    'command': 'attach-vcard'
+                },
                 'checkmail': {
                     'class': 'checkmail',
                     'text': 'refresh',
                     'callback': function(p) { rcmail.command('checkmail'); }
+                },
+                'compose': {
+                    'class': 'compose',
+                    'text': 'compose',
+                    'command': 'compose'
                 },
                 'delete': {
                     'class': 'delete',
@@ -320,7 +330,7 @@ rcube_webmail.prototype.swipe = {
 $(document).ready(function() {
     if (window.rcmail && ((bw.touch && !bw.ie) || bw.pointer)) {
         rcmail.addEventListener('init', function() {
-            rcmail.env.swipe_list = rcmail.message_list;
+            rcmail.env.swipe_list = rcmail.task == 'addressbook' ? rcmail.contact_list : rcmail.message_list;
 
             var list_container = $(rcmail.env.swipe_list.list).parent();
             if (rcmail.env.swipe_list.draggable || !list_container[0].addEventListener)
@@ -369,6 +379,15 @@ $(document).ready(function() {
                     rcmail.swipe.parent.css('touch-action', action.callback && ! bw.edge ? 'pan-down' : 'pan-y');
                 }
             }).trigger('scroll');
+
+            if (rcmail.env.task == 'addressbook') {
+                rcmail.contact_list.addEventListener('getselection', function(p) {
+                    if ($('.swipe-active').length == 1 && rcmail.env.cid) {
+                        p.res = [rcmail.env.cid];
+                        return false;
+                    }
+                });
+            }
         });
 
         // right/left/down swipe on list
@@ -396,7 +415,7 @@ $(document).ready(function() {
                         };
                     },
                     'target_obj': $('#' + props.row.id),
-                    'uid': props.uid
+                    'uid': props.cid ? props.cid : props.uid
                 }
             };
 

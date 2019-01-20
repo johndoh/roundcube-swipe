@@ -76,6 +76,8 @@
     color: #fff;
   }
 
+  &.attvcard,
+  &.compose,
   &.forward,
   &.reply,
   &.replyall,
@@ -104,8 +106,16 @@
         content: @fa-var-archive;
       }
 
+      &.attvcard::before {
+        content: @fa-var-paperclip;
+      }
+
       &.checkmail::before {
         content: @fa-var-sync;
+      }
+
+      &.compose::before {
+        content: @fa-var-edit;
       }
 
       &.delete::before {
