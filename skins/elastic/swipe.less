@@ -5,35 +5,6 @@
 @import (reference) "../../../../skins/elastic/styles/variables";
 @import (reference) "../../../../skins/elastic/styles/mixins";
 
-#listoptions-menu {
-  overflow-y: auto;
-  margin: -0.5em -1em;
-  padding: .75em 1.25em;
-
-  &::-webkit-scrollbar {
-    -webkit-appearance: none;
-  }
-
-  &::-webkit-scrollbar:vertical {
-    width: .6rem;
-  }
-
-  &::-webkit-scrollbar:horizontal {
-    height: .6rem;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, .4);
-    border-radius: .3rem;
-    border: 2px solid #fff;
-  }
-
-  > fieldset.swipe-menu {
-    display: none;
-    margin-top: 1.5rem;
-  }
-}
-
 #swipe-action {
   position: absolute;
   display: flex;
@@ -212,25 +183,17 @@
   display: none;
 }
 
-html.layout-small,
-html.layout-phone {
+html.layout-small.touch,
+html.layout-phone.touch {
   .toolbar {
     a.button {
       &.swipe {
         display: inline-block;
 
         &:before {
-          content: @fa-var-hand-point-up;
+          content: @fa-var-hand-pointer;
         }
       }
     }
-  }
-}
-
-fieldset.swipe-menu {
-  margin: .25em;
-
-  legend {
-    display: none;
   }
 }
