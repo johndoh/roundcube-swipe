@@ -2,7 +2,7 @@
 /* Author: Philip Weir */
 
 $labels = array();
-$labels['swipeactions'] = 'Swipe actions';
+$labels['swipeoptions'] = 'Swipe options';
 $labels['swipeleft'] = 'Swipe left';
 $labels['swiperight'] = 'Swipe right';
 $labels['swipedown'] = 'Swipe down';
