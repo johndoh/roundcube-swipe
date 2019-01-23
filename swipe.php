@@ -57,7 +57,7 @@ class swipe extends rcube_plugin
         'contactlist' => array(
             'vertical' => array(),
             'horizontal' => array(
-                'attvcard' => 'vcard_attachments.forwardvcard',
+                'vcard_attachments' => 'vcard_attachments.forwardvcard',
                 'compose' => 'compose',
                 'delete' => 'delete',
                 'swipe-select' => 'select'
@@ -211,16 +211,12 @@ class swipe extends rcube_plugin
         else if (in_array($action, $this->disabled_actions) || in_array($this->rcube->task . $action, $this->disabled_actions)) {
             $result = false;
         }
+        else if (in_array($action, array('markasjunk', 'vcard_attachments')) && !in_array($action, $this->laoded_plugins)) {
+            // check plugin is enabled
+            $result = false;
+        }
         else if ($action == 'archive' && !$this->rcube->output->env['archive_folder']) {
             // archive plugin
-            $result = false;
-        }
-        else if ($action == 'markasjunk' && !in_array('markasjunk', $this->laoded_plugins)) {
-            // markasjunk plugin
-            $result = false;
-        }
-        else if ($action == 'attvcard' && !in_array('vcard_attachments', $this->laoded_plugins)) {
-            // vcard_attachments plugin
             $result = false;
         }
 

@@ -85,7 +85,7 @@ The following actions are available for down swipe:
 *Contacts List:*
 The following actions are available for left/right swipe:
 
-* `attvcard` - Attach the contact to a new message as a vCard (Requires the Roundcube Vcard_attachments plugin)
+* `vcard_attachments` - Attach the contact to a new message as a vCard (Requires the Roundcube Vcard_attachments plugin)
 * `compose` - Compose a new message to this contact
 * `delete` - Delete the contact
 * `swipe-select` - Select/deselect the contact
