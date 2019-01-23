@@ -29,6 +29,9 @@ class swipe extends rcube_plugin
 {
     public $task = 'mail|addressbook';
     private $menu_file = null;
+    private $dont_override = array();
+    private $disabled_actions = array();
+    private $laoded_plugins = array();
     private $config = array(
         'messagelist' => array('left' => 'none', 'right' => 'none', 'down' => 'none'),
         'contactlist' => array('left' => 'none', 'right' => 'none', 'down' => 'none')
@@ -69,8 +72,13 @@ class swipe extends rcube_plugin
         $this->rcube = rcube::get_instance();
         $this->list_type = $this->rcube->task == 'addressbook' ? 'contactlist' : 'messagelist';
         $this->add_texts('localization/');
-        $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
 
+        $this->add_hook('ready', array($this, 'setup'));
+        $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
+    }
+
+    public function setup()
+    {
         $this->_load_config();
 
         if ($this->rcube->output->type == 'html' && $this->rcube->action == '') {
@@ -89,29 +97,24 @@ class swipe extends rcube_plugin
                 $this->rcube->output->add_label('swipe.swipeoptions', 'swipe.markasflagged', 'swipe.markasunflagged', 'swipe.markasread',
                     'swipe.markasunread', 'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select', 'swipe.deselect', 'compose');
                 $this->rcube->output->add_handler('swipeoptionslist', array($this, 'options_list'));
-
-                $this->options_menu();
             }
-        }
-    }
 
-    public function options_menu()
-    {
-        if ($this->_allowed_action('*')) {
-            // add swipe actions link to the menu
-            $this->add_button(array(
-                    'command' => 'plugin.swipe.options',
-                    'type' => 'link',
-                    'class' => 'button swipe disabled',
-                    'classact' => 'button swipe',
-                    'title' => 'swipe.swipeoptions',
-                    'innerclass' => 'inner',
-                    'label' => 'swipe.swipeoptions'
-                ), 'listcontrols');
+            if ($this->_allowed_action('*')) {
+                // add swipe actions link to the menu
+                $this->add_button(array(
+                        'command' => 'plugin.swipe.options',
+                        'type' => 'link',
+                        'class' => 'button swipe disabled',
+                        'classact' => 'button swipe',
+                        'title' => 'swipe.swipeoptions',
+                        'innerclass' => 'inner',
+                        'label' => 'swipe.swipeoptions'
+                    ), 'listcontrols');
 
-            // add swipe actions popup menu
-            $html = $this->rcube->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
-            $this->rcube->output->add_footer($html);
+                // add swipe actions popup menu
+                $html = $this->rcube->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
+                $this->rcube->output->add_footer($html);
+            }
         }
     }
 
@@ -179,6 +182,10 @@ class swipe extends rcube_plugin
 
     private function _load_config()
     {
+        $this->dont_override = (array) $this->rcube->config->get('dont_override');
+        $this->disabled_actions = (array) $this->rcube->config->get('disabled_actions');
+        $this->laoded_plugins = $this->api->loaded_plugins();
+
         $config = $this->rcube->config->get('swipe_actions', array());
 
         // remove disabled actions
@@ -193,29 +200,26 @@ class swipe extends rcube_plugin
 
     private function _allowed_action($direction, $action = '')
     {
-        $dont_override = (array) $this->rcube->config->get('dont_override');
-        $disabled_actions = (array) $this->rcube->config->get('disabled_actions');
-        $laoded_plugins = $this->api->loaded_plugins();
         $result = true;
 
         // Skip the action if it is in disabled_actions config option
         // Also skip actions from disabled/not configured plugins
-        if (in_array('swipe_actions', $dont_override) || in_array('swipe_actions.' . $this->list_type, $dont_override) ||
-            in_array('swipe_actions.' . $this->list_type . '.' . $direction, $dont_override)) {
+        if (in_array('swipe_actions', $this->dont_override) || in_array('swipe_actions.' . $this->list_type, $this->dont_override) ||
+            in_array('swipe_actions.' . $this->list_type . '.' . $direction, $this->dont_override)) {
             $result = false;
         }
-        else if (in_array($action, $disabled_actions) || in_array($this->rcube->task . $action, $disabled_actions)) {
+        else if (in_array($action, $this->disabled_actions) || in_array($this->rcube->task . $action, $this->disabled_actions)) {
             $result = false;
         }
         else if ($action == 'archive' && !$this->rcube->output->env['archive_folder']) {
             // archive plugin
             $result = false;
         }
-        else if ($action == 'markasjunk' && !in_array('markasjunk', $laoded_plugins)) {
+        else if ($action == 'markasjunk' && !in_array('markasjunk', $this->laoded_plugins)) {
             // markasjunk plugin
             $result = false;
         }
-        else if ($action == 'attvcard' && !in_array('vcard_attachments', $laoded_plugins)) {
+        else if ($action == 'attvcard' && !in_array('vcard_attachments', $this->laoded_plugins)) {
             // vcard_attachments plugin
             $result = false;
         }
