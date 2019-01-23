@@ -48,6 +48,11 @@ $config['swipe_actions'] = array(
         'left' => '<action>',
         'right' => '<action>',
         'down' => '<action>'
+    ),
+    'contactlist' => array(
+        'left' => '<action>',
+        'right' => '<action>',
+        'down' => 'none'
     )
 );
 ```
