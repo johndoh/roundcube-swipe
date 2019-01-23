@@ -107,7 +107,7 @@ class swipe extends rcube_plugin
                     'title' => 'swipe.swipeoptions',
                     'innerclass' => 'inner',
                     'label' => 'swipe.swipeoptions'
-                ), 'toolbar'); // Using 'listcontrols' would be better but container does not exist in addressbook template
+                ), 'listcontrols');
 
             // add swipe actions popup menu
             $html = $this->rcube->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
