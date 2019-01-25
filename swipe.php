@@ -7,7 +7,7 @@
  *
  * @author Philip Weir
  *
- * Copyright (C) 2018 Philip Weir
+ * Copyright (C) 2018-2019 Philip Weir
  *
  * This program is a Roundcube (https://roundcube.net) plugin.
  * For more information see README.md.
@@ -32,10 +32,7 @@ class swipe extends rcube_plugin
     private $dont_override = array();
     private $disabled_actions = array();
     private $laoded_plugins = array();
-    private $config = array(
-        'messagelist' => array('left' => 'none', 'right' => 'none', 'down' => 'none'),
-        'contactlist' => array('left' => 'none', 'right' => 'none', 'down' => 'none')
-    );
+    private $config = array();
     private $actions = array(
         'messagelist' => array(
             'vertical' => array(
@@ -186,6 +183,12 @@ class swipe extends rcube_plugin
         $this->disabled_actions = (array) $this->rcube->config->get('disabled_actions');
         $this->laoded_plugins = $this->api->loaded_plugins();
 
+        // initialize internal config
+        foreach (array_keys($this->actions) as $list) {
+            $this->config[$list] = array('left' => 'none', 'right' => 'none', 'down' => 'none');
+        }
+
+        // get user config
         $config = $this->rcube->config->get('swipe_actions', array());
 
         // remove disabled actions
