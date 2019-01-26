@@ -314,28 +314,6 @@ rcube_webmail.prototype.swipe = {
                 if (swipedata.axis)
                     swipeevents.clearswipe(e);
             });
-    },
-
-    save_options: function(dialog) {
-        var post = {};
-        $.each(['left', 'right', 'down'], function() {
-            var option_input = $('.swipeoptions-' + this, dialog).find('select,input').first();
-
-            if ($(option_input).is('input[type="radio"]')) {
-                selector = 'input[name="swipe_' + this + '"]:checked';
-            }
-            else if ($(option_input).is('select')) {
-                selector = 'select[name="swipe_' + this + '"]';
-            }
-
-            if ($(selector, dialog).val() != rcmail.env.swipe_actions[this]) {
-                rcmail.env.swipe_actions[this] = $(selector, dialog).val();
-                post['swipe_' + this] = rcmail.env.swipe_actions[this];
-            }
-        });
-
-        if (!$.isEmptyObject(post))
-            rcmail.http_post('plugin.swipe.save_settings', post);
     }
 };
 
@@ -371,10 +349,31 @@ $(document).ready(function() {
                     }
                 });
 
-                rcmail.show_popup_dialog(dialog, rcmail.get_label('swipeoptions', 'swipe'), [
-                    { text: rcmail.get_label('save'), 'class': 'mainaction save', click: function(e, ui, dialog) { rcmail.swipe.save_options(this); (rcmail.is_framed() ? parent.$ : $)(dialog || this).dialog('close'); } },
-                    { text: rcmail.get_label('cancel'), 'class': 'cancel', click: function(e, ui, dialog) { (rcmail.is_framed() ? parent.$ : $)(dialog || this).dialog('close'); } }
-                ]);
+                var save_func = function(e) {
+                    var post = {};
+                    $.each(['left', 'right', 'down'], function() {
+                        var option_input = $('.swipeoptions-' + this, dialog).find('select,input').first();
+
+                        if ($(option_input).is('input[type="radio"]')) {
+                            selector = 'input[name="swipe_' + this + '"]:checked';
+                        }
+                        else if ($(option_input).is('select')) {
+                            selector = 'select[name="swipe_' + this + '"]';
+                        }
+
+                        if ($(selector, dialog).val() != rcmail.env.swipe_actions[this]) {
+                            rcmail.env.swipe_actions[this] = $(selector, dialog).val();
+                            post['swipe_' + this] = rcmail.env.swipe_actions[this];
+                        }
+                    });
+
+                    if (!$.isEmptyObject(post))
+                        rcmail.http_post('plugin.swipe.save_settings', post);
+
+                    return true;
+                };
+
+                rcmail.simple_dialog(dialog, rcmail.get_label('swipeoptions', 'swipe'), save_func);
             }, !rcmail.env.swipe_list.draggable);
 
             // down swipe on list container
