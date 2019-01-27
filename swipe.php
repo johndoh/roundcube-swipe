@@ -7,7 +7,7 @@
  *
  * @author Philip Weir
  *
- * Copyright (C) 2018 Philip Weir
+ * Copyright (C) 2018-2019 Philip Weir
  *
  * This program is a Roundcube (https://roundcube.net) plugin.
  * For more information see README.md.
@@ -29,25 +29,26 @@ class swipe extends rcube_plugin
 {
     public $task = 'mail';
     private $menu_file = null;
-    private $config = array(
-        'messagelist' => array('left' => 'none', 'right' => 'none', 'down' => 'none')
-    );
+    private $dont_override = array();
+    private $disabled_actions = array();
+    private $laoded_plugins = array();
+    private $config = array();
     private $actions = array(
         'messagelist' => array(
             'vertical' => array(
-                'checkmail' => 'checkmail'
+                'checkmail' => array('label' => 'checkmail')
             ),
             'horizontal' => array(
-                'archive' => 'archive.buttontext',
-                'delete' => 'delete',
-                'forward' => 'forward',
-                'markasjunk' => 'markasjunk.markasjunk',
-                'move' => 'moveto',
-                'reply' => 'reply',
-                'reply-all' => 'replyall',
-                'swipe-flagged' => 'swipe.markasflagged',
-                'swipe-read' => 'swipe.markasread',
-                'swipe-select' => 'select'
+                'archive' => array('label' => 'archive.buttontext', 'plugin' => true, 'condition' => 'env:archive_folder'),
+                'delete' => array('label' => 'delete'),
+                'forward' => array('label' => 'forward'),
+                'markasjunk' => array('label' => 'markasjunk.markasjunk', 'plugin' => true),
+                'move' => array('label' => 'moveto'),
+                'reply' => array('label' => 'reply'),
+                'reply-all' => array('label' => 'replyall'),
+                'swipe-flagged' => array('label' => 'swipe.markasflagged'),
+                'swipe-read' => array('label' => 'swipe.markasread'),
+                'swipe-select' => array('label' => 'select')
             )
         )
     );
@@ -59,28 +60,35 @@ class swipe extends rcube_plugin
         $this->rcube = rcube::get_instance();
         $this->list_type = 'messagelist';
         $this->add_texts('localization/');
+
+        $this->add_hook('ready', array($this, 'setup'));
         $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
+        $this->add_hook('template_container', array($this, 'options_menu'));
+    }
+
+    public function setup()
+    {
+        if ($this->rcube->action != '') {
+            return;
+        }
 
         $this->_load_config();
 
-        if ($this->rcube->output->type == 'html' && $this->rcube->action == '') {
-            $this->menu_file = '/' . $this->local_skin_path() . '/includes/menu.html';
-            $filepath = slashify($this->home) . $this->menu_file;
-            if (is_file($filepath) && is_readable($filepath)) {
-                $config = $this->config[$this->list_type];
-                $this->rcube->output->set_env('swipe_actions', array(
-                    'left' => $config['left'],
-                    'right' => $config['right'],
-                    'down' => $config['down']
-                ));
+        $this->menu_file = '/' . $this->local_skin_path() . '/includes/menu.html';
+        $filepath = slashify($this->home) . $this->menu_file;
+        if (is_file($filepath) && is_readable($filepath)) {
+            $config = $this->config[$this->list_type];
+            $this->rcube->output->set_env('swipe_actions', array(
+                'left' => $config['left'],
+                'right' => $config['right'],
+                'down' => $config['down']
+            ));
 
-                $this->add_hook('template_container', array($this, 'options_menu'));
-                $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
-                $this->include_script('swipe.js');
-                $this->rcube->output->add_label('swipe.markasflagged', 'swipe.markasunflagged', 'swipe.markasread', 'swipe.markasunread',
-                    'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select', 'swipe.deselect');
-                $this->rcube->output->add_handler('swipeoptionslist', array($this, 'options_list'));
-            }
+            $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
+            $this->include_script('swipe.js');
+            $this->rcube->output->add_label('swipe.markasflagged', 'swipe.markasunflagged', 'swipe.markasread', 'swipe.markasunread',
+                'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select', 'swipe.deselect');
+            $this->rcube->output->add_handler('swipeoptionslist', array($this, 'options_list'));
         }
     }
 
@@ -106,12 +114,12 @@ class swipe extends rcube_plugin
         $data = rcube::get_instance()->plugins->exec_hook('swipe_actions_list', array('actions' => $swipe_actions, 'direction' => $args['direction']));
 
         $options = array();
-        foreach ($data['actions'] as $action => $text) {
-            if (!$this->_allowed_action($args['direction'], $action)) {
+        foreach ($data['actions'] as $action => $info) {
+            if (!$this->_allowed_action($args['direction'], $action, $info)) {
                 continue;
             }
 
-            $options[$action] = $this->gettext($text);
+            $options[$action] = $this->gettext($info['label']);
         }
         asort($options);
 
@@ -144,6 +152,8 @@ class swipe extends rcube_plugin
 
     public function save_settings()
     {
+        $this->_load_config();
+
         $save = false;
         foreach (array('left', 'right', 'down') as $direction) {
             if (($prop = rcube_utils::get_input_value('swipe_' . $direction, rcube_utils::INPUT_POST)) && $this->_allowed_action($direction)) {
@@ -159,47 +169,80 @@ class swipe extends rcube_plugin
 
     private function _load_config()
     {
+        $this->dont_override = (array) $this->rcube->config->get('dont_override');
+        $this->disabled_actions = (array) $this->rcube->config->get('disabled_actions');
+        $this->laoded_plugins = $this->api->loaded_plugins();
+
+        // initialize internal config
+        foreach (array_keys($this->actions) as $list) {
+            $this->config[$list] = array('left' => 'none', 'right' => 'none', 'down' => 'none');
+        }
+
+        // get user config
         $config = $this->rcube->config->get('swipe_actions', array());
 
         // remove disabled actions
         foreach ($config as $list => $opts) {
-            foreach ($opts as $dirction => $action) {
-                if ($this->_allowed_action($dirction, $action)) {
-                    $this->config[$list][$dirction] = $action;
+            foreach ($opts as $direction => $action) {
+                $axis = $direction == 'down' ? 'vertical' : 'horizontal';
+                $opts = !empty($this->actions[$list][$axis][$action]) ? $this->actions[$list][$axis][$action] : null;
+
+                if ($this->_allowed_action($direction, $action, $opts)) {
+                    $this->config[$list][$direction] = $action;
                 }
             }
         }
     }
 
-    private function _allowed_action($direction, $action = '')
+    private function _allowed_action($direction, $action = '', $opts = null)
     {
-        $dont_override = (array) $this->rcube->config->get('dont_override');
-        $disabled_actions = (array) $this->rcube->config->get('disabled_actions');
-        $laoded_plugins = $this->api->loaded_plugins();
         $result = true;
 
         // Skip the action if it is in disabled_actions config option
         // Also skip actions from disabled/not configured plugins
-        if (in_array('swipe_actions', $dont_override) || in_array('swipe_actions.' . $this->list_type, $dont_override) ||
-            in_array('swipe_actions.' . $this->list_type . '.' . $direction, $dont_override)) {
+        if (in_array('swipe_actions', $this->dont_override) || in_array('swipe_actions.' . $this->list_type, $this->dont_override) ||
+            in_array('swipe_actions.' . $this->list_type . '.' . $direction, $this->dont_override)) {
             $result = false;
         }
-        else if (in_array($action, $disabled_actions) || in_array($this->rcube->task . $action, $disabled_actions)) {
+        else if (in_array($action, $this->disabled_actions) || in_array($this->rcube->task . $action, $this->disabled_actions)) {
             $result = false;
         }
-        else if ($action == 'archive' && !$this->rcube->output->env['archive_folder']) {
-            // archive plugin
+        else if (isset($opts['plugin']) && !in_array($action, $this->laoded_plugins)) {
+            // check plugin is enabled
             $result = false;
         }
-        else if ($action == 'markasjunk' && !in_array('markasjunk', $laoded_plugins)) {
-            // markasjunk plugin
-            $result = false;
-        }
-        else if ($action == 'attvcard' && !in_array('vcard_attachments', $laoded_plugins)) {
-            // vcard_attachments plugin
+
+        // check for special conditions
+        if ($result && !empty($opts['condition']) && !$this->_eval_expression($opts['condition'])) {
             $result = false;
         }
 
         return $result;
+    }
+
+    private function _eval_expression($expression)
+    {
+        // from rcmail_output_html::eval_expression()
+        $expression = preg_replace(
+            array(
+                '/session:([a-z0-9_]+)/i',
+                '/config:([a-z0-9_]+)(:([a-z0-9_]+))?/i',
+                '/env:([a-z0-9_]+)/i',
+                '/request:([a-z0-9_]+)/i',
+                '/cookie:([a-z0-9_]+)/i',
+                '/browser:([a-z0-9_]+)/i',
+            ),
+            array(
+                "\$_SESSION['\\1']",
+                "\$this->rcube->config->get('\\1',rcube_utils::get_boolean('\\3'))",
+                "\$this->rcube->output->env['\\1']",
+                "rcube_utils::get_input_value('\\1', rcube_utils::INPUT_GPC)",
+                "\$_COOKIE['\\1']",
+                "\$this->rcmail->output->browser->{'\\1'}",
+            ),
+            $expression
+        );
+
+        return eval("return ($expression);");
     }
 }
