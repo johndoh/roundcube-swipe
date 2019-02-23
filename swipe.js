@@ -220,11 +220,13 @@ rcube_webmail.prototype.swipe = {
                 changeY = opts.vertical ? Math.min(opts.vertical.maxmove, changeY) : 0;
                 changeX = opts.horizontal ? (changeX < 0 ? Math.max(opts.horizontal.maxmove * -1, changeX) : Math.min(opts.horizontal.maxmove, changeX)) : 0;
 
+                // use Math.abs() to ensure value is always a positive number
+                var min_move = 5; // the minimum amount of pointer movement required to trigger the swipe
                 var temp_axis;
-                if (((changeY > 5 || changeY < -5) && changeX < 5 && changeX > -5) || (opts.vertical && opts.vertical.target_obj.hasClass('swipe-active'))) {
+                if (opts.vertical && (Math.abs(changeY) > min_move || opts.vertical.target_obj.hasClass('swipe-active'))) {
                     temp_axis = 'vertical';
                 }
-                else if (((changeX > 5 || changeX < -5) && changeY < 5 && changeY > -5) || (opts.horizontal && opts.horizontal.target_obj.hasClass('swipe-active'))) {
+                else if (opts.horizontal && (Math.abs(changeX) > min_move || opts.horizontal.target_obj.hasClass('swipe-active'))) {
                     temp_axis = 'horizontal';
                 }
                 else {
