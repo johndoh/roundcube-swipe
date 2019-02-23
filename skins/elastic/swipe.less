@@ -42,7 +42,7 @@
 
   &.horizontal {
     background-color: lighten(@color-black, 85%);
-    color: @color-black;
+    color: lighten(@color-black, 50%);
   }
 
   &.vertical {
@@ -56,38 +56,34 @@
     color: @color-main;
   }
 
-  &.select,
-  &.deselect {
-    background-color: lighten(@color-black, 50%);
-    color: #fff;
-  }
-
   &.delete,
   &.junk {
-    background-color: @color-message-error;
-    color: #fff;
+    background-color: @color-message-error-box-background;
+    color: @color-message-error;
   }
 
   &.flagged,
   &.unflagged,
   &.read,
-  &.unread {
-    background-color: @color-message-information;
-    color: #fff;
+  &.unread,
+  &.select,
+  &.deselect {
+    background-color: @color-message-information-box-background;
+    color: @color-message-information;
   }
 
   &.forward,
   &.reply,
   &.replyall,
   &.notjunk {
-    background-color: @color-message-success;
-    color: #fff;
+    background-color: @color-message-success-box-background;
+    color: @color-message-success;
   }
 
   &.move,
   &.archive {
-    background-color: @color-message-warning;
-    color: #fff;
+    background-color: @color-message-warning-box-background;
+    color: @color-message-warning;
   }
 
   > .swipe-container {
