@@ -43,6 +43,26 @@
   &.horizontal {
     background-color: lighten(@color-black, 85%);
     color: lighten(@color-black, 50%);
+
+    &.swipe_primary {
+      background-color: @color-message-information-box-background;
+      color: @color-message-information;
+    }
+
+    &.swipe_danger {
+      background-color: @color-message-error-box-background;
+      color: @color-message-error;
+    }
+
+    &.swipe_warning {
+      background-color: @color-message-warning-box-background;
+      color: @color-message-warning;
+    }
+
+    &.swipe_compose {
+      background-color: @color-message-success-box-background;
+      color: @color-message-success;
+    }
   }
 
   &.vertical {
@@ -50,110 +70,49 @@
     color: lighten(@color-black, 70%);
     top: 2em;
     height: 1.5em;
-  }
 
-  &.checkmail {
-    color: @color-main;
-  }
+    &.swipe_primary {
+      color: @color-main;
+    }
 
-  &.delete,
-  &.junk {
-    background-color: @color-message-error-box-background;
-    color: @color-message-error;
-  }
+    &.swipe_danger {
+      color: @color-message-error;
+    }
 
-  &.flagged,
-  &.unflagged,
-  &.read,
-  &.unread,
-  &.select,
-  &.deselect {
-    background-color: @color-message-information-box-background;
-    color: @color-message-information;
-  }
+    &.swipe_warning {
+      color: @color-message-warning;
+    }
 
-  &.forward,
-  &.reply,
-  &.replyall,
-  &.notjunk {
-    background-color: @color-message-success-box-background;
-    color: @color-message-success;
-  }
-
-  &.move,
-  &.archive {
-    background-color: @color-message-warning-box-background;
-    color: @color-message-warning;
+    &.swipe_compose {
+      color: @color-message-success;
+    }
   }
 
   > .swipe-container {
-    > .swipe-action {
-      line-height: 100%;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+    .swipe-action {
       font-size: 1.2em;
+      opacity: 1;
 
       &::before {
-        .font-icon-class;
         margin: 0 .25em 0 .5em;
+        font-size: inherit
       }
 
+      // icons not defined in .toolbarmenu
       &.archive::before {
         content: @fa-var-archive;
       }
 
-      &.checkmail::before {
+      &.refresh::before {
         content: @fa-var-sync;
       }
 
-      &.delete::before {
-        content: @fa-var-trash-alt;
-      }
-
-      &.flagged::before {
-        content: @fa-var-flag;
-      }
-
-      &.unflagged::before {
-        .font-icon-regular(@fa-var-flag);
-      }
-
-      &.forward::before {
-        content: @fa-var-share;
-      }
-
-      &.junk::before {
-        content: @fa-var-fire-alt;
-      }
-
-      &.notjunk::before {
-        content: @fa-var-inbox;
-      }
-
-      &.move::before {
-        content: @fa-var-arrows-alt;
-      }
-
-      &.read::before {
-        .font-icon-regular(@fa-var-circle);
-      }
-
-      &.unread::before {
-        content: @fa-var-circle;
-      }
-
-      &.reply::before {
+      &.reply.one::before {
         content: @fa-var-reply;
-      }
-
-      &.replyall::before {
-        content: @fa-var-reply-all;
-      }
-
-      &.select::before {
-        .font-icon-regular(@fa-var-check-square);
-      }
-
-      &.deselect::before {
-        .font-icon-regular(@fa-var-square);
       }
     }
 
@@ -161,7 +120,7 @@
       position: absolute;
       right: 0;
 
-      > .swipe-action::before {
+      .swipe-action::before {
         float: right;
         margin: 0 .5em 0 .25em;
       }
@@ -173,12 +132,15 @@
       border-radius: 50%;
       box-shadow: 0 0 10px lighten(@color-black, 75%);
 
-      > .swipe-action {
+      .swipe-action {
         &::before {
           float: none;
           padding: 0;
-          margin: 10px;
-          line-height: 1em;
+          margin: .4em;
+          line-height: 1;
+          font-size: 1.2em;
+          width: auto;
+          height: auto;
         }
 
         > .swipe-label {
