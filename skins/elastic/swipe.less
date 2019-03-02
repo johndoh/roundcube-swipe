@@ -44,9 +44,10 @@
     background-color: lighten(@color-black, 85%);
     color: lighten(@color-black, 50%);
 
-    &.swipe_primary {
-      background-color: @color-message-information-box-background;
-      color: @color-message-information;
+    &.swipe_active,
+    &.swipe_mark {
+      background-color: fadeout(@color-main, 85%);
+      color: @color-main;
     }
 
     &.swipe_danger {
@@ -54,11 +55,12 @@
       color: @color-message-error;
     }
 
-    &.swipe_warning {
+    &.swipe_move {
       background-color: @color-message-warning-box-background;
       color: @color-message-warning;
     }
 
+    &.swipe_success,
     &.swipe_compose {
       background-color: @color-message-success-box-background;
       color: @color-message-success;
@@ -71,18 +73,20 @@
     top: 2em;
     height: 1.5em;
 
-    &.swipe_primary {
+    &.swipe_active,
+    &.swipe_mark {
       color: @color-main;
+    }
+
+    &.swipe_move {
+      color: @color-message-warning;
     }
 
     &.swipe_danger {
       color: @color-message-error;
     }
 
-    &.swipe_warning {
-      color: @color-message-warning;
-    }
-
+    &.swipe_success,
     &.swipe_compose {
       color: @color-message-success;
     }

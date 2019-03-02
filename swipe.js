@@ -78,12 +78,12 @@ rcube_webmail.prototype.swipe = {
     select_action: function(direction, obj) {
         var actions = {
                 'archive': {
-                    'class': rcmail.env.archive_folder ? 'archive swipe_warning' : null,
+                    'class': rcmail.env.archive_folder ? 'archive swipe_move' : null,
                     'text': rcmail.env.archive_folder ? 'archive.buttontext': null,
                     'command': rcmail.env.archive_folder ? 'plugin.archive' : null
                 },
                 'checkmail': {
-                    'class': 'refresh swipe_primary',
+                    'class': 'refresh swipe_active',
                     'text': 'refresh',
                     'callback': function(p) { rcmail.command('checkmail'); }
                 },
@@ -98,12 +98,12 @@ rcube_webmail.prototype.swipe = {
                     'command': 'compose/forward'
                 },
                 'markasjunk': {
-                    'class': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'notjunk swipe_compose' : 'junk swipe_danger',
+                    'class': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'notjunk swipe_success' : 'junk swipe_danger',
                     'text': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'markasjunk.markasnotjunk' : 'markasjunk.markasjunk',
                     'command': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'plugin.markasjunk.not_junk' : 'plugin.markasjunk.junk'
                 },
                 'move': {
-                    'class': 'move swipe_warning',
+                    'class': 'move swipe_move',
                     'text': 'moveto',
                     'command': 'move'
                 },
@@ -118,17 +118,17 @@ rcube_webmail.prototype.swipe = {
                     'command': 'compose/reply-all'
                 },
                 'swipe-read': {
-                    'class': (obj && obj.hasClass('unread') ? 'read' : 'unread') + ' swipe_primary',
+                    'class': (obj && obj.hasClass('unread') ? 'read' : 'unread') + ' swipe_mark',
                     'text': obj && obj.hasClass('unread') ? 'swipe.markasread' : 'swipe.markasunread',
                     'command': obj && obj.hasClass('unread') ? 'mark/read' : 'mark/unread'
                 },
                 'swipe-flagged': {
-                    'class': (obj && obj.hasClass('flagged') ? 'unflag' : 'flag') + ' swipe_primary',
+                    'class': (obj && obj.hasClass('flagged') ? 'unflag' : 'flag') + ' swipe_mark',
                     'text': obj && obj.hasClass('flagged') ? 'swipe.markasunflagged' : 'swipe.markasflagged',
                     'command': obj && obj.hasClass('flagged') ? 'mark/unflagged' : 'mark/flagged'
                 },
                 'swipe-select': {
-                    'class': (obj && obj.hasClass('selected') ? 'select invert' : 'select all') + ' swipe_primary',
+                    'class': (obj && obj.hasClass('selected') ? 'select invert' : 'select all') + ' swipe_active',
                     'text': obj && obj.hasClass('selected') ? 'swipe.deselect' : 'select',
                     'command': obj && obj.hasClass('selected') ? 'select/deselect' : 'select/select'
                 },
