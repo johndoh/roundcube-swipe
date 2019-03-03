@@ -78,69 +78,69 @@ rcube_webmail.prototype.swipe = {
     select_action: function(direction, obj) {
         var actions = {
                 'archive': {
-                    'class': rcmail.env.archive_folder ? 'archive' : null,
+                    'class': rcmail.env.archive_folder ? 'archive swipe_move' : null,
                     'text': rcmail.env.archive_folder ? 'archive.buttontext': null,
                     'command': rcmail.env.archive_folder ? 'plugin.archive' : null
                 },
-                'attvcard': {
-                    'class': 'attvcard',
-                    'text': 'vcard_attachments.forwardvcard',
-                    'command': 'attach-vcard'
-                },
                 'checkmail': {
-                    'class': 'checkmail',
+                    'class': 'refresh swipe_active',
                     'text': 'refresh',
                     'callback': function(p) { rcmail.command('checkmail'); }
                 },
                 'compose': {
-                    'class': 'compose',
+                    'class': 'compose swipe_compose',
                     'text': 'compose',
                     'command': 'compose'
                 },
                 'delete': {
-                    'class': 'delete',
+                    'class': 'delete swipe_danger',
                     'text': 'delete',
                     'command': 'delete'
                 },
                 'forward': {
-                    'class': 'forward',
+                    'class': 'forward swipe_compose',
                     'text': 'forward',
                     'command': 'compose/forward'
                 },
                 'markasjunk': {
-                    'class': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'notjunk' : 'junk',
+                    'class': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'notjunk swipe_success' : 'junk swipe_danger',
                     'text': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'markasjunk.markasnotjunk' : 'markasjunk.markasjunk',
                     'command': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'plugin.markasjunk.not_junk' : 'plugin.markasjunk.junk'
                 },
                 'move': {
-                    'class': 'move',
+                    'class': 'move swipe_move',
                     'text': 'moveto',
                     'command': 'move'
                 },
                 'reply': {
-                    'class': 'reply',
+                    'class': 'reply one swipe_compose',
                     'text': 'reply',
                     'command': 'compose/reply'
                 },
                 'reply-all': {
-                    'class': 'replyall',
+                    'class': 'reply all swipe_compose',
                     'text': 'replyall',
                     'command': 'compose/reply-all'
                 },
                 'swipe-read': {
-                    'class': obj && obj.hasClass('unread') ? 'read' : 'unread',
+                    'class': (obj && obj.hasClass('unread') ? 'read' : 'unread') + ' swipe_mark',
                     'text': obj && obj.hasClass('unread') ? 'swipe.markasread' : 'swipe.markasunread',
                     'command': obj && obj.hasClass('unread') ? 'mark/read' : 'mark/unread'
                 },
                 'swipe-flagged': {
-                    'class': obj && obj.hasClass('flagged') ? 'unflagged' : 'flagged',
+                    'class': (obj && obj.hasClass('flagged') ? 'unflag' : 'flag') + ' swipe_mark',
                     'text': obj && obj.hasClass('flagged') ? 'swipe.markasunflagged' : 'swipe.markasflagged',
                     'command': obj && obj.hasClass('flagged') ? 'mark/unflagged' : 'mark/flagged'
                 },
                 'swipe-select': {
-                    'class': obj && obj.hasClass('selected') ? 'deselect' : 'select',
+                    'class': (obj && obj.hasClass('selected') ? 'select invert' : 'select all') + ' swipe_active',
                     'text': obj && obj.hasClass('selected') ? 'swipe.deselect' : 'select',
                     'command': obj && obj.hasClass('selected') ? 'select/deselect' : 'select/select'
+                },
+                'vcard_attachments': {
+                    'class': 'vcard swipe_compose',
+                    'text': 'vcard_attachments.forwardvcard',
+                    'command': 'attach-vcard'
                 },
                 'none': {
                     'class': null,
@@ -185,8 +185,8 @@ rcube_webmail.prototype.swipe = {
 
                 // reset #swipe-action
                 $('#swipe-action').removeClass().hide();
-                $('.swipe-container').attr('class', 'swipe-container');
-                $('.swipe-action').attr('class', 'swipe-action');
+                $('.swipe-container').attr('class', rcmail.env.swipe_container_class);
+                $('.swipe-action').attr('class', rcmail.env.swipe_button_class);
 
                 if (opts.parent_obj)
                     opts.parent_obj.off(swipeevents.moveevent, rcube_event.cancel);
@@ -230,11 +230,13 @@ rcube_webmail.prototype.swipe = {
                 changeY = opts.vertical ? Math.min(opts.vertical.maxmove, changeY) : 0;
                 changeX = opts.horizontal ? (changeX < 0 ? Math.max(opts.horizontal.maxmove * -1, changeX) : Math.min(opts.horizontal.maxmove, changeX)) : 0;
 
+                // use Math.abs() to ensure value is always a positive number
+                var min_move = 5; // the minimum amount of pointer movement required to trigger the swipe
                 var temp_axis;
-                if (((changeY > 5 || changeY < -5) && changeX < 5 && changeX > -5) || (opts.vertical && opts.vertical.target_obj.hasClass('swipe-active'))) {
+                if (opts.vertical && (Math.abs(changeY) > min_move || opts.vertical.target_obj.hasClass('swipe-active'))) {
                     temp_axis = 'vertical';
                 }
-                else if (((changeX > 5 || changeX < -5) && changeY < 5 && changeY > -5) || (opts.horizontal && opts.horizontal.target_obj.hasClass('swipe-active'))) {
+                else if (opts.horizontal && (Math.abs(changeX) > min_move || opts.horizontal.target_obj.hasClass('swipe-active'))) {
                     temp_axis = 'horizontal';
                 }
                 else {
@@ -266,8 +268,8 @@ rcube_webmail.prototype.swipe = {
                     return;
 
                 $('#swipe-action').attr('class', temp_axis).data('callback', action.callback);
-                $('.swipe-container').attr('class', 'swipe-container ' + direction);
-                $('.swipe-action').attr('class', 'swipe-action ' + action.class);
+                $('.swipe-container').attr('class', rcmail.env.swipe_container_class + ' ' + direction);
+                $('.swipe-action').attr('class', rcmail.env.swipe_button_class + ' ' + action.class);
                 $('.swipe-label').text(rcmail.gettext(action.text));
 
                 if (!opts[swipedata.axis].target_obj.hasClass('swipe-active')) {
@@ -322,13 +324,16 @@ $(document).ready(function() {
         rcmail.addEventListener('init', function() {
             rcmail.env.swipe_list = rcmail.task == 'addressbook' ? rcmail.contact_list : rcmail.message_list;
             rcmail.env.swipe_menuname = 'messagelistmenu';
+            rcmail.env.swipe_container_class = 'swipe-container toolbarmenu';
+            rcmail.env.swipe_button_class = 'swipe-action';
 
             var list_container = $(rcmail.env.swipe_list.list).parent();
             if (rcmail.env.swipe_list.draggable || !list_container[0].addEventListener)
                 return;
 
+            // minic toolbarmenu structure to pickup CSS from core
             var swipe_action = $('<div>').attr('id', 'swipe-action').append(
-                $('<div>').addClass('swipe-container').append($('<div>').addClass('swipe-action').append($('<span>').addClass('swipe-label')))
+                $('<ul>').addClass(rcmail.env.swipe_container_class).append($('<li>').append($('<a>').addClass(rcmail.env.swipe_button_class).append($('<span>').addClass('swipe-label'))))
             );
 
             rcmail.swipe.parent = list_container;
