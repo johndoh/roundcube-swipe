@@ -5,35 +5,6 @@
 @import (reference) "../../../../skins/elastic/styles/variables";
 @import (reference) "../../../../skins/elastic/styles/mixins";
 
-#listoptions-menu {
-  overflow-y: auto;
-  margin: -0.5em -1em;
-  padding: .75em 1.25em;
-
-  &::-webkit-scrollbar {
-    -webkit-appearance: none;
-  }
-
-  &::-webkit-scrollbar:vertical {
-    width: .6rem;
-  }
-
-  &::-webkit-scrollbar:horizontal {
-    height: .6rem;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, .4);
-    border-radius: .3rem;
-    border: 2px solid #fff;
-  }
-
-  > fieldset.swipe-menu {
-    display: none;
-    margin-top: 1.5rem;
-  }
-}
-
 #swipe-action {
   position: absolute;
   display: flex;
@@ -145,4 +116,29 @@
 .swipe-active:not(#swipe-action),
 .swipe-active > td {
   background-color: @color-layout-list-background;
+}
+
+.toolbar a.button.swipe {
+  display: none;
+}
+
+// no support in IE
+html.layout-small.touch:not(.ie),
+html.layout-phone.touch:not(.ie) {
+  .toolbar {
+    a.button {
+      &.swipe {
+        display: inline-block;
+
+        &:before {
+          content: @fa-var-hand-pointer;
+        }
+      }
+    }
+  }
+}
+
+// hide down option in Edge (see known issues in readme)
+html.edge #swipeoptionsmenu  > .swipeoptions-down {
+  display: none;
 }

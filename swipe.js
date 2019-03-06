@@ -41,8 +41,8 @@ rcube_webmail.prototype.swipe = {
         if (!props.uid)
             return;
 
-        var prev_uid = rcmail.env.uid;
-        rcmail.env.uid = props.uid;
+        var prev_uid = rcmail.env[rcmail.env.task == 'addressbook' ? 'cid' : 'uid'];
+        rcmail.env[rcmail.env.task == 'addressbook' ? 'cid' : 'uid'] = props.uid;
 
         var type = null;
         if (matches = command.match(/([a-z0-9_-]+)\/([a-z0-9-_]+)/)) {
@@ -72,7 +72,7 @@ rcube_webmail.prototype.swipe = {
             rcmail.enable_command(command, prev_command);
         }
 
-        rcmail.env.uid = prev_uid;
+        rcmail.env[rcmail.env.task == 'addressbook' ? 'cid' : 'uid'] = prev_uid;
     },
 
     select_action: function(direction, obj) {
@@ -86,6 +86,11 @@ rcube_webmail.prototype.swipe = {
                     'class': 'refresh swipe_active',
                     'text': 'refresh',
                     'callback': function(p) { rcmail.command('checkmail'); }
+                },
+                'compose': {
+                    'class': 'compose swipe_compose',
+                    'text': 'compose',
+                    'command': 'compose'
                 },
                 'delete': {
                     'class': 'delete swipe_danger',
@@ -131,6 +136,11 @@ rcube_webmail.prototype.swipe = {
                     'class': (obj && obj.hasClass('selected') ? 'select invert' : 'select all') + ' swipe_active',
                     'text': obj && obj.hasClass('selected') ? 'swipe.deselect' : 'select',
                     'command': obj && obj.hasClass('selected') ? 'select/deselect' : 'select/select'
+                },
+                'vcard_attachments': {
+                    'class': 'vcard swipe_compose',
+                    'text': 'vcard_attachments.forwardvcard',
+                    'command': 'attach-vcard'
                 },
                 'none': {
                     'class': null,
@@ -312,7 +322,7 @@ rcube_webmail.prototype.swipe = {
 $(document).ready(function() {
     if (window.rcmail && ((bw.touch && !bw.ie) || bw.pointer)) {
         rcmail.addEventListener('init', function() {
-            rcmail.env.swipe_list = rcmail.message_list;
+            rcmail.env.swipe_list = rcmail.task == 'addressbook' ? rcmail.contact_list : rcmail.message_list;
             rcmail.env.swipe_menuname = 'messagelistmenu';
             rcmail.env.swipe_container_class = 'swipe-container toolbarmenu';
             rcmail.env.swipe_button_class = 'swipe-action';
@@ -328,6 +338,48 @@ $(document).ready(function() {
 
             rcmail.swipe.parent = list_container;
             rcmail.swipe.parent.prepend(swipe_action.hide());
+
+            rcmail.register_command('plugin.swipe.options', function() {
+                var dialog = $('#swipeoptionsmenu').clone(true);
+                $.each(rcmail.env.swipe_actions, function(direction, action) {
+                    var option_input = $('.swipeoptions-' + direction, dialog).find('select,input');
+                    if (option_input.is('input[type="radio"]')) {
+                        option_input.filter('[value="' + action + '"]').prop('checked', true);
+                    }
+                    else if (option_input.is('select') && option_input.first().children('option').length > 0) {
+                        option_input.val(action);
+                    }
+                    else {
+                        $('.swipeoptions-' + direction, dialog).hide();
+                    }
+                });
+
+                var save_func = function(e) {
+                    var post = {};
+                    $.each(['left', 'right', 'down'], function() {
+                        var option_input = $('.swipeoptions-' + this, dialog).find('select,input').first();
+
+                        if ($(option_input).is('input[type="radio"]')) {
+                            selector = 'input[name="swipe_' + this + '"]:checked';
+                        }
+                        else if ($(option_input).is('select')) {
+                            selector = 'select[name="swipe_' + this + '"]';
+                        }
+
+                        if ($(selector, dialog).val() != rcmail.env.swipe_actions[this]) {
+                            rcmail.env.swipe_actions[this] = $(selector, dialog).val();
+                            post['swipe_' + this] = rcmail.env.swipe_actions[this];
+                        }
+                    });
+
+                    if (!$.isEmptyObject(post))
+                        rcmail.http_post('plugin.swipe.save_settings', post);
+
+                    return true;
+                };
+
+                rcmail.simple_dialog(dialog, rcmail.get_label('swipeoptions', 'swipe'), save_func);
+            }, !rcmail.env.swipe_list.draggable);
 
             // down swipe on list container
             var swipe_config = {
@@ -365,6 +417,15 @@ $(document).ready(function() {
                     rcmail.swipe.parent.css('touch-action', action.callback && ! bw.edge ? 'pan-down' : 'pan-y');
                 }
             }).trigger('scroll');
+
+            if (rcmail.env.task == 'addressbook') {
+                rcmail.contact_list.addEventListener('getselection', function(p) {
+                    if ($('.swipe-active').length == 1 && rcmail.env.cid) {
+                        p.res = [rcmail.env.cid];
+                        return false;
+                    }
+                });
+            }
         });
 
         // right/left/down swipe on list
@@ -392,73 +453,11 @@ $(document).ready(function() {
                         };
                     },
                     'target_obj': $('#' + props.row.id),
-                    'uid': props.uid
+                    'uid': props.cid ? props.cid : props.uid
                 }
             };
 
             rcmail.swipe.init(swipe_config);
         });
-
-        // save swipe options
-        rcmail.set_list_options_core = rcmail.set_list_options;
-        rcmail.set_list_options = function(cols, sort_col, sort_order, threads, layout) {
-            var post = {};
-            $.each(['left', 'right', 'down'], function() {
-                var option_input = $('.swipeoptions-' + this).find('select,input').first();
-
-                if ($(option_input).is('input[type="radio"]')) {
-                    selector = 'input[name="swipe_' + this + '"]:checked';
-                }
-                else if ($(option_input).is('select')) {
-                    selector = 'select[name="swipe_' + this + '"]';
-                    selector += $(selector).length > 1 ? ':visible' : '';
-                }
-
-                if ($(selector).val() != rcmail.env.swipe_actions[this]) {
-                    rcmail.env.swipe_actions[this] = $(selector).val();
-                    post['swipe_' + this] = rcmail.env.swipe_actions[this];
-                }
-            });
-
-            if (!$.isEmptyObject(post))
-                rcmail.http_post('plugin.swipe.save_settings', post);
-
-            rcmail.set_list_options_core(cols, sort_col, sort_order, threads, layout);
-        };
     }
-
-    // show swipe options in the list options menu
-    rcmail.addEventListener('beforemenu-open', function(name) {
-        if (name == rcmail.env.swipe_menuname) {
-            var menu_obj = $('.swipe-menu');
-            if (!rcmail.env.swipe_list.draggable && menu_obj.find('select > option,input').length > 0) {
-                if (bw.edge)
-                    menu_obj.find('.swipeoptions-down').hide();
-
-                menu_obj.show();
-            }
-            else {
-                menu_obj.hide();
-            }
-        }
-    });
-
-    // set the values swipe options menu
-    // done in menu-open not beforemenu-open because of Elastic's Bootstrap popovers
-    rcmail.addEventListener('menu-open', function(p) {
-        if (p.name == rcmail.env.swipe_menuname && $('.swipe-menu').is(':visible')) {
-            $.each(rcmail.env.swipe_actions, function(direction, action) {
-                var option_input = $('.swipeoptions-' + direction).find('select,input');
-                if (option_input.is('input[type="radio"]')) {
-                    option_input.filter('[value="' + action + '"]').prop('checked', true);
-                }
-                else if (option_input.is('select') && option_input.first().children('option').length > 0) {
-                    option_input.val(action);
-                }
-                else {
-                    $('.swipeoptions-' + direction).hide();
-                }
-            });
-        }
-    });
 });

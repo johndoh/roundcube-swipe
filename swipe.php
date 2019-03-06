@@ -27,7 +27,7 @@
  */
 class swipe extends rcube_plugin
 {
-    public $task = 'mail';
+    public $task = 'mail|addressbook';
     private $menu_file = null;
     private $dont_override = array();
     private $disabled_actions = array();
@@ -50,6 +50,15 @@ class swipe extends rcube_plugin
                 'swipe-read' => array('label' => 'swipe.markasread'),
                 'swipe-select' => array('label' => 'select')
             )
+        ),
+        'contactlist' => array(
+            'vertical' => array(),
+            'horizontal' => array(
+                'vcard_attachments' => array('label' => 'vcard_attachments.forwardvcard', 'plugin' => true),
+                'compose' => array('label' => 'compose'),
+                'delete' => array('label' => 'delete'),
+                'swipe-select' => array('label' => 'select')
+            )
         )
     );
     private $rcube;
@@ -58,12 +67,11 @@ class swipe extends rcube_plugin
     public function init()
     {
         $this->rcube = rcube::get_instance();
-        $this->list_type = 'messagelist';
+        $this->list_type = $this->rcube->task == 'addressbook' ? 'contactlist' : 'messagelist';
         $this->add_texts('localization/');
 
         $this->add_hook('ready', array($this, 'setup'));
         $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
-        $this->add_hook('template_container', array($this, 'options_menu'));
     }
 
     public function setup()
@@ -86,20 +94,26 @@ class swipe extends rcube_plugin
 
             $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
             $this->include_script('swipe.js');
-            $this->rcube->output->add_label('swipe.markasflagged', 'swipe.markasunflagged', 'swipe.markasread', 'swipe.markasunread',
-                'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select', 'swipe.deselect');
-            $this->rcube->output->add_handler('swipeoptionslist', array($this, 'options_list'));
-        }
-    }
+            $this->rcube->output->add_label('swipe.swipeoptions', 'swipe.markasflagged', 'swipe.markasunflagged', 'swipe.markasread',
+                'swipe.markasunread', 'refresh', 'moveto', 'reply', 'replyall', 'forward', 'select', 'swipe.deselect', 'compose');
 
-    public function options_menu($args)
-    {
-        if ($args['name'] == 'listoptions') {
-            // add additional menus from skins folder to list options menu
-            $html = $this->rcube->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
-            $args['content'] .= $html;
+            if ($this->_allowed_action('*')) {
+                // add swipe actions link to the menu
+                $this->add_button(array(
+                        'command' => 'plugin.swipe.options',
+                        'type' => 'link',
+                        'class' => 'button swipe disabled',
+                        'classact' => 'button swipe',
+                        'title' => 'swipe.swipeoptions',
+                        'innerclass' => 'inner',
+                        'label' => 'swipe.swipeoptions'
+                    ), 'listcontrols');
 
-            return $args;
+                // add swipe actions popup menu
+                $this->rcube->output->add_handler('swipeoptionslist', array($this, 'options_list'));
+                $html = $this->rcube->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
+                $this->rcube->output->add_footer($html);
+            }
         }
     }
 

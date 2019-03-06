@@ -1,6 +1,8 @@
 Roundcube Webmail Swipe
 =======================
 
+ * Add swipe support on contacts list
+ * Move swipe options to their own dialog
  * Replace swipeactions with swipeoptions
  * Use listoptions template container (req RC 03425d1)
  * Allow menu to use select or radio buttons
