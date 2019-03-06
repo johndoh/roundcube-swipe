@@ -135,6 +135,7 @@
   display: none;
 }
 
+// no support in IE
 html.layout-small.touch:not(.ie),
 html.layout-phone.touch:not(.ie) {
   .toolbar {
@@ -148,4 +149,9 @@ html.layout-phone.touch:not(.ie) {
       }
     }
   }
+}
+
+// hide down option in Edge (see known issues in readme)
+html.edge #swipeoptionsmenu  > .swipeoptions-down {
+  display: none;
 }
