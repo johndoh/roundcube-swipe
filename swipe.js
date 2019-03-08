@@ -174,6 +174,7 @@ rcube_webmail.prototype.swipe = {
             'moveevent': 'pointermove',
             'endevent': 'pointerup',
             'cancelevent': 'pointercancel',
+            'minmove': 5,
             'id': function(e) { return e.pointerId; },
             'type': function(e) { return e.pointerType; },
             'pos': function(e, x) { return e.originalEvent[ x ? 'pageX' : 'pageY']; },
@@ -187,6 +188,7 @@ rcube_webmail.prototype.swipe = {
                 $('#swipe-action').removeClass().hide();
                 $('.swipe-container').attr('class', rcmail.env.swipe_container_class);
                 $('.swipe-action').attr('class', rcmail.env.swipe_button_class);
+                rcmail.swipe.parent.css('touch-action', 'pan-y');
 
                 if (opts.parent_obj)
                     opts.parent_obj.off(swipeevents.moveevent, rcube_event.cancel);
@@ -200,6 +202,7 @@ rcube_webmail.prototype.swipe = {
             swipeevents.moveevent = 'touchmove';
             swipeevents.endevent = 'touchend';
             swipeevents.cancelevent = 'touchcancel';
+            swipeevents.minmove = 15;
             swipeevents.id = function(e) { return e.changedTouches.length == 1 ? e.changedTouches[0].identifier : -1; };
             swipeevents.type = function(e) { return 'touch'; };
             swipeevents.pos = function(e, x) { return e.originalEvent.targetTouches[0][ x ? 'pageX' : 'pageY']; };
@@ -231,7 +234,7 @@ rcube_webmail.prototype.swipe = {
                 changeX = opts.horizontal ? (changeX < 0 ? Math.max(opts.horizontal.maxmove * -1, changeX) : Math.min(opts.horizontal.maxmove, changeX)) : 0;
 
                 // use Math.abs() to ensure value is always a positive number
-                var min_move = 5; // the minimum amount of pointer movement required to trigger the swipe
+                var min_move = swipeevents.minmove; // the minimum amount of pointer movement required to trigger the swipe
                 var temp_axis;
                 if (opts.vertical && (Math.abs(changeY) > min_move || opts.vertical.target_obj.hasClass('swipe-active'))) {
                     temp_axis = 'vertical';
@@ -249,7 +252,7 @@ rcube_webmail.prototype.swipe = {
 
                 // do not interfere with normal list scrolling
                 if (temp_axis == 'vertical' && rcmail.swipe.parent.scrollTop() != 0) {
-                    if (bw.pointer && swipedata.scrollable)
+                    if (swipedata.scrollable)
                         rcmail.swipe.parent.css('touch-action', 'pan-y');
 
                     if (swipedata.axis)
@@ -406,15 +409,16 @@ $(document).ready(function() {
 
             // prevent accidental list scroll when swipe active
             rcmail.swipe.parent.on('scroll', function() {
-                if (!bw.pointer) {
-                    if (rcmail.swipe.active)
-                        return false;
-                }
-                else if ($(this).scrollTop() == 0) {
-                    // allow vertical pointer events to fire (if one is configured)
-                    var action = rcmail.swipe.select_action('down');
-                    // Edge does not support pan-down, only pan-y
-                    rcmail.swipe.parent.css('touch-action', action.callback && ! bw.edge ? 'pan-down' : 'pan-y');
+                if ($(this).scrollTop() == 0) {
+                    if (!bw.pointer) {
+                        rcmail.swipe.parent.css('touch-action', 'pan-y');
+                    }
+                    else {
+                        // allow vertical pointer events to fire (if one is configured)
+                        var action = rcmail.swipe.select_action('down');
+                        // Edge does not support pan-down, only pan-y
+                        rcmail.swipe.parent.css('touch-action', action.callback && !bw.edge && !bw.moz ? 'pan-down' : 'pan-y');
+                    }
                 }
             }).trigger('scroll');
 
@@ -446,7 +450,7 @@ $(document).ready(function() {
                     'transition': 'translatex',
                     'action_sytle': function(o) {
                         return {
-                            'top': o.position().top,
+                            'top': o.position().top + (bw.mz ? rcmail.swipe.parent.scrollTop() : 0),
                             'left': o.position().left,
                             'width': o.width() + 'px',
                             'height': (o.height() - 2) + 'px' // subtract the border
