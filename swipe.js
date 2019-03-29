@@ -16,6 +16,11 @@
  */
 
 rcube_webmail.prototype.swipe = {
+    container_class: 'swipe-container',
+    button_class: 'swipe-action',
+    label_class: 'swipe-label',
+    element: null,
+
     position_target: function(obj, pos, transition, max_move) {
         var translate = '';
 
@@ -186,8 +191,8 @@ rcube_webmail.prototype.swipe = {
 
                 // reset #swipe-action
                 $('#swipe-action').removeClass().hide();
-                $('.swipe-container').attr('class', rcmail.env.swipe_container_class);
-                $('.swipe-action').attr('class', rcmail.env.swipe_button_class);
+                $('.swipe-container').attr('class', rcmail.swipe.container_class);
+                $('.swipe-action').attr('class', rcmail.swipe.button_class);
                 rcmail.swipe.set_scroll_css();
 
                 if (opts.parent_obj)
@@ -271,8 +276,8 @@ rcube_webmail.prototype.swipe = {
                     return;
 
                 $('#swipe-action').attr('class', temp_axis).data('callback', action.callback);
-                $('.swipe-container').attr('class', rcmail.env.swipe_container_class + ' ' + direction);
-                $('.swipe-action').attr('class', rcmail.env.swipe_button_class + ' ' + action.class);
+                $('.swipe-container').attr('class', rcmail.swipe.container_class + ' ' + direction);
+                $('.swipe-action').attr('class', rcmail.swipe.button_class + ' ' + action.class);
                 $('.swipe-label').text(rcmail.gettext(action.text));
 
                 if (!opts[swipedata.axis].target_obj.hasClass('swipe-active')) {
@@ -340,18 +345,12 @@ $(document).ready(function() {
     if (window.rcmail && ((bw.touch && !bw.ie) || bw.pointer)) {
         rcmail.addEventListener('init', function() {
             rcmail.env.swipe_list = rcmail.task == 'addressbook' ? rcmail.contact_list : rcmail.message_list;
-            rcmail.env.swipe_menuname = 'messagelistmenu';
-            rcmail.env.swipe_container_class = 'swipe-container toolbarmenu';
-            rcmail.env.swipe_button_class = 'swipe-action';
 
             var list_container = $(rcmail.env.swipe_list.list).parent();
             if (rcmail.env.swipe_list.draggable || !list_container[0].addEventListener)
                 return;
 
-            // minic toolbarmenu structure to pickup CSS from core
-            var swipe_action = $('<div>').attr('id', 'swipe-action').append(
-                $('<ul>').addClass(rcmail.env.swipe_container_class).append($('<li>').append($('<a>').addClass(rcmail.env.swipe_button_class).append($('<span>').addClass('swipe-label'))))
-            );
+            var swipe_action = $('<div>').attr('id', 'swipe-action').append(rcmail.swipe.element);
 
             rcmail.swipe.parent = list_container;
             rcmail.swipe.parent.prepend(swipe_action.hide());
