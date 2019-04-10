@@ -327,16 +327,14 @@ rcube_webmail.prototype.swipe = {
     },
 
     set_scroll_css: function() {
-        if (rcmail.swipe.parent.scrollTop() == 0) {
-            if (!bw.pointer) {
-                rcmail.swipe.parent.css('touch-action', 'pan-y');
-            }
-            else {
-                // allow vertical pointer events to fire (if one is configured)
-                var action = rcmail.swipe.select_action('down');
-                // Edge does not support pan-down, only pan-y
-                rcmail.swipe.parent.css('touch-action', action.callback && !bw.edge && !bw.moz ? 'pan-down' : 'pan-y');
-            }
+        // Edge does not support pan-down, only pan-y
+        if (bw.pointer && rcmail.swipe.parent.scrollTop() == 0 && !bw.edge) {
+            // allow vertical pointer events to fire (if one is configured)
+            var action = rcmail.swipe.select_action('down');
+            rcmail.swipe.parent.css('touch-action', action.callback ? 'pan-down' : 'pan-y');
+        }
+        else {
+            rcmail.swipe.parent.css('touch-action', 'pan-y');
         }
     }
 };
