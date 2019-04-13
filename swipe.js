@@ -186,8 +186,6 @@ rcube_webmail.prototype.swipe = {
             'clearswipe': function(e) {
                 rcmail.swipe.position_target(opts[swipedata.axis].target_obj, 0);
                 opts[swipedata.axis].target_obj.removeClass('swipe-active');
-                swipedata = {};
-                rcmail.swipe.active = null;
 
                 // reset #swipe-action
                 $('#swipe-action').removeClass().hide();
@@ -197,6 +195,14 @@ rcube_webmail.prototype.swipe = {
 
                 if (opts.parent_obj)
                     opts.parent_obj.off(swipeevents.moveevent, rcube_event.cancel);
+
+                // restore normal scrolling on touch devices
+                if (swipedata.axis == 'vertical' && !bw.pointer) {
+                    rcmail.swipe.parent.css('overflow-y', 'auto');
+                }
+
+                swipedata = {};
+                rcmail.swipe.active = null;
             }
         };
         var swipedata = {};
@@ -221,6 +227,7 @@ rcube_webmail.prototype.swipe = {
                     swipedata.y = swipeevents.pos(e, false);
                     swipedata.id = swipeevents.id(e);
                     swipedata.scrollable = rcmail.swipe.parent[0].offsetHeight < rcmail.swipe.parent[0].scrollHeight;
+                    swipedata.scrolltop = rcmail.swipe.parent.scrollTop();
 
                     if (opts.parent_obj)
                         opts.parent_obj.off(swipeevents.moveevent, rcube_event.cancel);
@@ -265,6 +272,9 @@ rcube_webmail.prototype.swipe = {
 
                     return;
                 }
+                else if (temp_axis == 'horizontal' && !bw.pointer && swipedata.scrolltop != rcmail.swipe.parent.scrollTop()) {
+                    return;
+                }
 
                 // save the axis info
                 swipedata.axis = temp_axis;
@@ -293,6 +303,10 @@ rcube_webmail.prototype.swipe = {
 
                     if (opts.parent_obj)
                         opts.parent_obj.on(swipeevents.moveevent, rcube_event.cancel);
+
+                    // prevent up scroll when vertical active on touch devices
+                    if (rcmail.swipe.active == 'vertical' && !bw.pointer && changeY > 0)
+                        rcmail.swipe.parent.css('overflow-y', 'hidden');
                 }
 
                 // the user must swipe a certain about before the action is activated, try to prevent accidental actions
@@ -423,7 +437,7 @@ $(document).ready(function() {
 
             if (rcmail.env.task == 'addressbook') {
                 rcmail.contact_list.addEventListener('getselection', function(p) {
-                    if ($('.swipe-active').length == 1 && rcmail.env.cid) {
+                    if (rcmail.swipe.active && rcmail.env.cid) {
                         p.res = [rcmail.env.cid];
                         return false;
                     }
