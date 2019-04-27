@@ -27,7 +27,7 @@
  */
 class swipe extends rcube_plugin
 {
-    public $task = 'mail|addressbook';
+    public $task = '^((?!login).)*$';
     private $menu_file = null;
     private $dont_override = array();
     private $disabled_actions = array();
@@ -35,6 +35,8 @@ class swipe extends rcube_plugin
     private $config = array();
     private $actions = array(
         'messagelist' => array(
+            'list_name' => 'message_list',
+            'selection_id' => 'uid',
             'vertical' => array(
                 'checkmail' => array('label' => 'checkmail')
             ),
@@ -52,6 +54,8 @@ class swipe extends rcube_plugin
             )
         ),
         'contactlist' => array(
+            'list_name' => 'contact_list',
+            'selection_id' => 'cid',
             'vertical' => array(),
             'horizontal' => array(
                 'vcard_attachments' => array('label' => 'vcard_attachments.forwardvcard', 'plugin' => true),
@@ -59,7 +63,8 @@ class swipe extends rcube_plugin
                 'delete' => array('label' => 'delete'),
                 'swipe-select' => array('label' => 'select')
             )
-        )
+        ),
+        'none' => null
     );
     private $rcube;
     private $list_type;
@@ -67,8 +72,18 @@ class swipe extends rcube_plugin
     public function init()
     {
         $this->rcube = rcube::get_instance();
-        $this->list_type = $this->rcube->task == 'addressbook' ? 'contactlist' : 'messagelist';
         $this->add_texts('localization/');
+
+        switch ($this->rcube->task) {
+            case 'addressbook':
+                $this->list_type = 'contactlist';
+                break;
+            case 'mail':
+                $this->list_type = 'messagelist';
+                break;
+            default:
+                $this->list_type = 'none';
+        }
 
         $this->add_hook('ready', array($this, 'setup'));
         $this->register_action('plugin.swipe.save_settings', array($this, 'save_settings'));
@@ -85,12 +100,24 @@ class swipe extends rcube_plugin
         $this->menu_file = '/' . $this->local_skin_path() . '/includes/menu.html';
         $filepath = slashify($this->home) . $this->menu_file;
         if (is_file($filepath) && is_readable($filepath)) {
+            // Allow other plugins to interact with the actions list
+            $data = rcube::get_instance()->plugins->exec_hook('swipe_actions', array('list_type' => $this->list_type, 'actions' => $this->actions[$this->list_type]));
+            $this->list_type = $data['list_type'];
+            $this->actions[$this->list_type] = $data['actions'];
+
+            if (sizeof($this->actions[$this->list_type]) == 0) {
+                // no swipe actions found, disable the plugin
+                return;
+            }
+
             $config = $this->config[$this->list_type];
             $this->rcube->output->set_env('swipe_actions', array(
                 'left' => $config['left'],
                 'right' => $config['right'],
                 'down' => $config['down']
             ));
+            $this->rcube->output->set_env('swipe_list_name', $this->actions[$this->list_type]['list_name']);
+            $this->rcube->output->set_env('swipe_selection_id',$this->actions[$this->list_type]['selection_id']);
 
             $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
             $this->include_script('swipe.js');
@@ -124,11 +151,8 @@ class swipe extends rcube_plugin
         $args['id'] = 'swipeoptions-' . $args['direction'];
         $args['name'] = 'swipe_' . $args['direction'];
 
-        // Allow other plugins to interact with the action list
-        $data = rcube::get_instance()->plugins->exec_hook('swipe_actions_list', array('actions' => $swipe_actions, 'direction' => $args['direction']));
-
         $options = array();
-        foreach ($data['actions'] as $action => $info) {
+        foreach ($swipe_actions as $action => $info) {
             if (!$this->_allowed_action($args['direction'], $action, $info)) {
                 continue;
             }
@@ -168,6 +192,10 @@ class swipe extends rcube_plugin
     {
         $this->_load_config();
 
+        // Allow other plugins to interact with the actions list
+        $data = rcube::get_instance()->plugins->exec_hook('swipe_actions', array('list_type' => $this->list_type, 'actions' => $this->actions[$this->list_type]));
+        $this->list_type = $data['list_type'];
+
         $save = false;
         foreach (array('left', 'right', 'down') as $direction) {
             if (($prop = rcube_utils::get_input_value('swipe_' . $direction, rcube_utils::INPUT_POST)) && $this->_allowed_action($direction)) {
@@ -189,7 +217,9 @@ class swipe extends rcube_plugin
 
         // initialize internal config
         foreach (array_keys($this->actions) as $list) {
-            $this->config[$list] = array('left' => 'none', 'right' => 'none', 'down' => 'none');
+            if ($list != 'none') {
+                $this->config[$list] = array('left' => 'none', 'right' => 'none', 'down' => 'none');
+            }
         }
 
         // get user config

@@ -106,13 +106,28 @@ to dont_override:
 
 Interaction with other plugins
 ------------------------------
-The `swipe_actions_list` hook is triggered when listing the available actions
+The `swipe_actions` hook is triggered when the plugin starts up
 on the list options menu.
 *Arguments:*
- * actions
- * direction
+ * list_type - the name of list the swipe actions are being performed on, e.g. messagelist, used when selecting/saving config
+ * actions - an array of actions for this list in the format:
+```
+$args['actions'] = array(
+    'list_name' => '*JS list object name*',
+    'selection_id' => '*JS element identifier e.g. UID*',
+    'vertical' => array(
+        '*action_name*' => array('label' => '*display name*'),
+        ...
+    ),
+    'horizontal' => array(
+        '*action_name*' => array('label' => '*display name*'),
+        ...
+    )
+);
+```
 
 *Return values:*
+ * list_type
  * actions
 
 The `swipe-action` JS event is triggered when a swipe action is performed.

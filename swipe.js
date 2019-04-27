@@ -46,8 +46,8 @@ rcube_webmail.prototype.swipe = {
         if (!props.uid)
             return;
 
-        var prev_uid = rcmail.env[rcmail.env.task == 'addressbook' ? 'cid' : 'uid'];
-        rcmail.env[rcmail.env.task == 'addressbook' ? 'cid' : 'uid'] = props.uid;
+        var prev_uid = rcmail.env[rcmail.env.swipe_selection_id];
+        rcmail.env[rcmail.env.swipe_selection_id] = props.uid;
 
         var type = null;
         if (matches = command.match(/([a-z0-9_-]+)\/([a-z0-9-_]+)/)) {
@@ -77,7 +77,7 @@ rcube_webmail.prototype.swipe = {
             rcmail.enable_command(command, prev_command);
         }
 
-        rcmail.env[rcmail.env.task == 'addressbook' ? 'cid' : 'uid'] = prev_uid;
+        rcmail.env[rcmail.env.swipe_selection_id] = prev_uid;
     },
 
     select_action: function(direction, obj) {
@@ -356,7 +356,7 @@ rcube_webmail.prototype.swipe = {
 $(document).ready(function() {
     if (window.rcmail && ((bw.touch && !bw.ie) || bw.pointer)) {
         rcmail.addEventListener('init', function() {
-            rcmail.env.swipe_list = rcmail.task == 'addressbook' ? rcmail.contact_list : rcmail.message_list;
+            rcmail.env.swipe_list = rcmail[rcmail.env.swipe_list_name];
 
             var list_container = $(rcmail.env.swipe_list.list).parent();
             if (rcmail.env.swipe_list.draggable || !list_container[0].addEventListener)
@@ -435,14 +435,12 @@ $(document).ready(function() {
             // prevent accidental list scroll when swipe active
             rcmail.swipe.parent.on('scroll', function() { rcmail.swipe.set_scroll_css(); }).trigger('scroll');
 
-            if (rcmail.env.task == 'addressbook') {
-                rcmail.contact_list.addEventListener('getselection', function(p) {
-                    if (rcmail.swipe.active && rcmail.env.cid) {
-                        p.res = [rcmail.env.cid];
-                        return false;
-                    }
-                });
-            }
+            rcmail.contact_list.addEventListener('getselection', function(p) {
+                if (rcmail.swipe.active && rcmail.env[rcmail.env.swipe_selection_id]) {
+                    p.res = [rcmail.env[rcmail.env.swipe_selection_id]];
+                    return false;
+                }
+            });
         });
 
         // right/left/down swipe on list
