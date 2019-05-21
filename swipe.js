@@ -435,7 +435,7 @@ $(document).ready(function() {
             // prevent accidental list scroll when swipe active
             rcmail.swipe.parent.on('scroll', function() { rcmail.swipe.set_scroll_css(); }).trigger('scroll');
 
-            rcmail.contact_list.addEventListener('getselection', function(p) {
+            rcmail.env.swipe_list.addEventListener('getselection', function(p) {
                 if (rcmail.swipe.active && rcmail.env[rcmail.env.swipe_selection_id]) {
                     p.res = [rcmail.env[rcmail.env.swipe_selection_id]];
                     return false;
