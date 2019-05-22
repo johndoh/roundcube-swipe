@@ -105,7 +105,7 @@ class swipe extends rcube_plugin
             $this->list_type = $data['list_type'];
             $this->actions[$this->list_type] = $data['actions'];
 
-            if (sizeof($this->actions[$this->list_type]) == 0) {
+            if (empty($this->actions[$this->list_type])) {
                 // no swipe actions found, disable the plugin
                 return;
             }
