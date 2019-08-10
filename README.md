@@ -21,11 +21,6 @@ as a linked part of the plugin and therefore skins DO NOT fall under the
 provisions of the GPL license. See the README file located in the core skins
 folder for details on the skin license.
 
-Known issues
-------------
-* No support in IE
-* No vertical swipe in Edge, no support for `touch-action: pan-down;` CSS - [bug report](https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/10573036/)
-
 Install
 -------
 * Place this plugin folder into plugins directory of Roundcube
@@ -38,6 +33,15 @@ directory in the downloaded archive.
 Supported skins
 ---------------
 * Elastic
+
+Supported browsers
+------------------
+This plugin relies on [Pointer Events][pointer] with fallback support for
+[Touch Events][touch] and should work in any browser which supports either of
+these, such as: Chrome, Firefox, or Safari. When used with Edge there is no
+support for vertical swipe actions, this is because the browser does not
+support the `touch-action: pan-down;` CSS property - [bug report][edge].
+There is no support for Internet Explorer.
 
 Configuration
 -------------
@@ -147,3 +151,6 @@ defined then the command is passed to the standard Swipe callback function.
 [rcplugrepo]: https://plugins.roundcube.net/packages/johndoh/swipe
 [releases]: https://github.com/johndoh/roundcube-swipe/releases
 [gpl]: https://www.gnu.org/licenses/gpl.html
+[pointer]: https://caniuse.com/#feat=pointer
+[touch]: https://caniuse.com/#feat=touch
+[edge]: https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/10573036/
