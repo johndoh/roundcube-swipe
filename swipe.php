@@ -162,7 +162,7 @@ class swipe extends rcube_plugin
         asort($options);
 
         // don't add none if there are no available actions, JS detects empty lists and hides the option
-        if (count($options) > 0) {
+        if (!empty($options)) {
             $options = array('none' => $this->gettext('none')) + $options;
         }
 
