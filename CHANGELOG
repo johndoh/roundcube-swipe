@@ -1,6 +1,8 @@
 Roundcube Webmail Swipe
 =======================
 
+Version 0.1 (2019-10-27, rc-1.4)
+=================================================
  * Add swipe support on contacts list
  * Move swipe options to their own dialog
  * Replace swipeactions with swipeoptions
