@@ -117,7 +117,7 @@ class swipe extends rcube_plugin
                 'down' => $config['down']
             ));
             $this->rcube->output->set_env('swipe_list_name', $this->actions[$this->list_type]['list_name']);
-            $this->rcube->output->set_env('swipe_selection_id',$this->actions[$this->list_type]['selection_id']);
+            $this->rcube->output->set_env('swipe_selection_id', $this->actions[$this->list_type]['selection_id']);
 
             $this->include_stylesheet($this->local_skin_path() . '/swipe.css');
             $this->include_script('swipe.js');
@@ -248,10 +248,10 @@ class swipe extends rcube_plugin
             in_array('swipe_actions.' . $this->list_type . '.' . $direction, $this->dont_override)) {
             $result = false;
         }
-        else if (in_array($action, $this->disabled_actions) || in_array($this->rcube->task . $action, $this->disabled_actions)) {
+        elseif (in_array($action, $this->disabled_actions) || in_array($this->rcube->task . $action, $this->disabled_actions)) {
             $result = false;
         }
-        else if (isset($opts['plugin']) && !in_array($action, $this->laoded_plugins)) {
+        elseif (isset($opts['plugin']) && !in_array($action, $this->laoded_plugins)) {
             // check plugin is enabled
             $result = false;
         }
