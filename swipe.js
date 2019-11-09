@@ -34,7 +34,9 @@ rcube_webmail.prototype.swipe = {
             }
         }
 
-        if (bw.edge && $(obj).is('tr')) { // Edge does not support transform on <tr>s
+        // Edge (Trident) does not support transform on <tr>s
+        // Roundcube 1.4 detects Edge Trident version as 537.36 see #6952
+        if (bw.edge && (bw.vendver < 75 || bw.vendver > 537) && $(obj).is('tr')) {
             $(obj).children('td').css('transform', translate);
         }
         else {
@@ -341,8 +343,8 @@ rcube_webmail.prototype.swipe = {
     },
 
     set_scroll_css: function() {
-        // Edge does not support pan-down, only pan-y
-        if (bw.pointer && rcmail.swipe.parent.scrollTop() == 0 && !bw.edge) {
+        // Edge (Trident) does not support pan-down, only pan-y
+        if (bw.pointer && rcmail.swipe.parent.scrollTop() == 0 && !(bw.edge && bw.vendver < 75)) {
             // allow vertical pointer events to fire (if one is configured)
             var action = rcmail.swipe.select_action('down');
             rcmail.swipe.parent.css('touch-action', action.callback ? 'pan-down' : 'pan-y');
