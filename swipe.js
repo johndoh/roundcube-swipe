@@ -140,7 +140,7 @@ rcube_webmail.prototype.swipe = {
                     'command': obj && obj.hasClass('flagged') ? 'mark/unflagged' : 'mark/flagged'
                 },
                 'swipe-select': {
-                    'class': (obj && obj.hasClass('selected') ? 'select invert' : 'select all') + ' swipe_active',
+                    'class': (obj && obj.hasClass('selected') ? 'select invert' : 'selection') + ' swipe_active',
                     'text': obj && obj.hasClass('selected') ? 'swipe.deselect' : 'select',
                     'command': obj && obj.hasClass('selected') ? 'select/deselect' : 'select/select'
                 },

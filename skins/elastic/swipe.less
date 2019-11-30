@@ -12,55 +12,39 @@
   border-collapse: collapse;
 
   &.horizontal {
-    background-color: lighten(@color-black, 85%);
+    background-color: lighten(@color-black, 80%);
     color: lighten(@color-black, 50%);
 
     &.swipe_active,
     &.swipe_mark {
-      background-color: fadeout(@color-main, 85%);
-      color: @color-main;
+      background-color: @color-message-information;
+      color: @color-message-text;
     }
 
     &.swipe_danger {
-      background-color: @color-message-error-box-background;
-      color: @color-message-error;
+      background-color: @color-message-error;
+      color: @color-message-error-text;
     }
 
     &.swipe_move {
-      background-color: @color-message-warning-box-background;
-      color: @color-message-warning;
+      background-color: @color-message-warning;
+      color: @color-message-warning-text;
     }
 
     &.swipe_success,
     &.swipe_compose {
-      background-color: @color-message-success-box-background;
-      color: @color-message-success;
+      background-color: @color-message-success;
+      color: @color-message-success-text;
     }
   }
 
   &.vertical {
-    background-color: transparent;
-    color: lighten(@color-black, 70%);
     top: 2em;
-    height: 1.5em;
     z-index: 1000;
+    color: lighten(@color-black, 50%);
 
-    &.swipe_active,
-    &.swipe_mark {
+    &.swipe_active {
       color: @color-main;
-    }
-
-    &.swipe_move {
-      color: @color-message-warning;
-    }
-
-    &.swipe_danger {
-      color: @color-message-error;
-    }
-
-    &.swipe_success,
-    &.swipe_compose {
-      color: @color-message-success;
     }
   }
 
