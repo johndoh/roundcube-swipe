@@ -5,6 +5,10 @@
 @import (reference) "../../../../skins/elastic/styles/variables";
 @import (reference) "../../../../skins/elastic/styles/mixins";
 
+// Calculate default colors from default list background color
+@color-swipe-default-background: contrast(@color-layout-list-background, darken(@color-layout-list-background, 10%), lighten(@color-layout-list-background, 40%));
+@color-swipe-default: contrast(@color-swipe-default-background, lighten(@color-swipe-default-background, 30%), darken(@color-swipe-default-background, 40%), 57%);
+
 #swipe-action {
   position: absolute;
   display: flex;
@@ -12,9 +16,18 @@
   border-collapse: collapse;
 
   &.horizontal {
-    background-color: lighten(@color-black, 80%);
-    color: lighten(@color-black, 50%);
+    background-color: @color-swipe-default-background;
+    color: @color-swipe-default;
+  }
 
+  &.vertical {
+    top: 2em;
+    z-index: 1000;
+    color: @color-swipe-default;
+  }
+
+  &.horizontal,
+  &.vertical > .swipe-container {
     &.swipe_active,
     &.swipe_mark {
       background-color: @color-message-information;
@@ -35,16 +48,6 @@
     &.swipe_compose {
       background-color: @color-message-success;
       color: @color-message-success-text;
-    }
-  }
-
-  &.vertical {
-    top: 2em;
-    z-index: 1000;
-    color: lighten(@color-black, 50%);
-
-    &.swipe_active {
-      color: @color-main;
     }
   }
 

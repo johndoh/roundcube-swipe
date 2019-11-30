@@ -315,11 +315,11 @@ rcube_webmail.prototype.swipe = {
                 // do not activate if there is no callback
                 if (((swipedata.axis == 'vertical' && changeY > opts[swipedata.axis].minmove) ||
                     (swipedata.axis == 'horizontal' && (changeX < (opts[swipedata.axis].minmove * -1) || changeX > opts[swipedata.axis].minmove))) && action.callback) {
-                    $('#swipe-action').addClass(action.class);
+                    $('#swipe-action.horizontal,#swipe-action.vertical > .swipe-container').addClass(action.class);
                 }
                 else {
                     // reset the swipe if the user takes the row back to the start
-                    $('#swipe-action').removeClass(action.class);
+                    $('#swipe-action.horizontal,#swipe-action.vertical > .swipe-container').removeClass(action.class);
                     $('#swipe-action').data('callback', null);
                 }
 
