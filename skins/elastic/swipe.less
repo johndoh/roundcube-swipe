@@ -61,7 +61,7 @@
       opacity: 1;
 
       &::before {
-        margin: 0 .25em 0 .5em;
+        margin: 0 .5rem;
         font-size: inherit
       }
     }
@@ -72,21 +72,21 @@
 
       .swipe-action::before {
         float: right;
-        margin: 0 .5em 0 .25em;
       }
     }
 
     &.down {
       margin: 0 auto;
+      padding: .01rem;
       background-color: @color-layout-list-background;
       border-radius: 50%;
-      box-shadow: 0 0 10px lighten(@color-black, 75%);
+      border: 1px solid @color-swipe-default-background;
 
       .swipe-action {
         &::before {
           float: none;
-          padding: 0;
-          margin: .4em;
+          margin: .4rem;
+          padding: .25rem;
           line-height: 1;
           font-size: 1.2em;
           width: auto;

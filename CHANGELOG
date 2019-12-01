@@ -1,6 +1,8 @@
 Roundcube Webmail Swipe
 =======================
 
+ * Better use of colours from core
+
 Version 0.1 (2019-10-27, rc-1.4)
 =================================================
  * Add swipe support on contacts list
