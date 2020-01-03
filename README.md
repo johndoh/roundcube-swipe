@@ -3,15 +3,6 @@ Roundcube Webmail Swipe
 This plugin adds left/right/down swipe actions to entries in the the message
 list on touch devices (tables/phones).
 
-ATTENTION
----------
-This is just a snapshot from the GIT repository and is **NOT A STABLE version
-of Swipe**. It is Intended for use with the **GIT-master** version of
-Roundcube and it may not be compatible with older versions. Stable versions of
-Swipe are available from the [Roundcube plugin repository][rcplugrepo]
-(for 1.4 and above) or the [releases section][releases] of the GitHub
-repository.
-
 License
 -------
 This plugin is released under the [GNU General Public License Version 3+][gpl].
