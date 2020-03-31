@@ -61,8 +61,7 @@ rcube_webmail.prototype.swipe = {
             rcmail.mark_message(command);
         }
         else if (type == 'compose') {
-            rcmail.enable_command(command, true);
-            rcmail.command(command, '', props.obj, props.originalEvent);
+            rcmail.command(command, '', props.obj, props.originalEvent, true);
         }
         else if (type == 'select') {
             rcmail.env.swipe_list.highlight_row(props.uid, true);
