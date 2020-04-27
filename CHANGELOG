@@ -1,6 +1,10 @@
 Roundcube Webmail Swipe
 =======================
 
+Version 0.3 (2020-04-27, rc-1.4.4)
+=================================================
+ * Update command enabling after (req RC cb8c078)
+
 Version 0.2 (2020-01-03, rc-1.4.2)
 =================================================
  * Better use of colours from core
