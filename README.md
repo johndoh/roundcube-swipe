@@ -148,7 +148,7 @@ an action:
 Note: Only 1 of callback and command need to be supplied. If no callback is
 defined then the command is passed to the standard Swipe callback function.
 
-[rcplugrepo]: https://plugins.roundcube.net/packages/johndoh/swipe
+[rcplugrepo]: https://plugins.roundcube.net/#/packages/johndoh/swipe
 [releases]: https://github.com/johndoh/roundcube-swipe/releases
 [gpl]: https://www.gnu.org/licenses/gpl.html
 [pointer]: https://caniuse.com/#feat=pointer
