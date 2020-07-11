@@ -1,6 +1,8 @@
 Roundcube Webmail Swipe
 =======================
 
+ * Support Dark Mode in Elastic
+
 Version 0.3 (2020-04-27, rc-1.4.4)
 =================================================
  * Update command enabling after (req RC cb8c078)

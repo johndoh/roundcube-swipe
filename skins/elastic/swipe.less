@@ -8,6 +8,8 @@
 // Calculate default colors from default list background color
 @color-swipe-default-background: contrast(@color-layout-list-background, darken(@color-layout-list-background, 10%), lighten(@color-layout-list-background, 40%));
 @color-swipe-default: contrast(@color-swipe-default-background, lighten(@color-swipe-default-background, 30%), darken(@color-swipe-default-background, 40%), 57%);
+@color-swipe-dark-background: contrast(@color-dark-background, darken(@color-dark-background, 15%), lighten(@color-dark-background, 10%));
+@color-swipe-dark: contrast(@color-swipe-dark-background, lighten(@color-swipe-dark-background, 30%), darken(@color-swipe-dark-background, 40%), 57%);
 
 #swipe-action {
   position: absolute;
@@ -127,6 +129,59 @@ html.layout-phone.touch:not(.ie) {
 }
 
 // hide down option in Edge (see known issues in readme)
-html.edge #swipeoptionsmenu  > .swipeoptions-down {
+html.edge #swipeoptionsmenu > .swipeoptions-down {
   display: none;
+}
+
+// dark mode
+& when (@dark-mode-enabled = true) {
+  html.dark-mode {
+    #swipe-action {
+      &.horizontal {
+        background-color: @color-swipe-dark-background;
+        color: @color-swipe-dark;
+      }
+
+      &.vertical {
+        color: @color-swipe-dark;
+      }
+
+      &.horizontal,
+      &.vertical > .swipe-container {
+        &.swipe_active,
+        &.swipe_mark {
+          background-color: @color-dark-message-information;
+          color: @color-dark-font;
+        }
+
+        &.swipe_danger {
+          background-color: @color-dark-message-error;
+          color: @color-dark-font;
+        }
+
+        &.swipe_move {
+          background-color: @color-dark-message-warning;
+          color: @color-dark-font;
+        }
+
+        &.swipe_success,
+        &.swipe_compose {
+          background-color: @color-dark-message-success;
+          color: @color-dark-font;
+        }
+      }
+
+      > .swipe-container {
+        &.down {
+          background-color: @color-dark-background;
+          border-color: @color-swipe-dark-background;
+        }
+      }
+    }
+
+    .swipe-active:not(#swipe-action),
+    .swipe-active > td {
+      background-color: @color-dark-background;
+    }
+  }
 }
