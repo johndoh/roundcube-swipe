@@ -148,6 +148,12 @@ an action:
 Note: Only 1 of callback and command need to be supplied. If no callback is
 defined then the command is passed to the standard Swipe callback function.
 
+Customizing the Elastic skin
+----------------------------
+The colors and styles used by this plugin can be overridden by adding a
+`_custom.less` file to the `skins/elastic` sub-folder of this plugin and
+then recompiling the CSS.
+
 [rcplugrepo]: https://plugins.roundcube.net/#/packages/johndoh/swipe
 [releases]: https://github.com/johndoh/roundcube-swipe/releases
 [gpl]: https://www.gnu.org/licenses/gpl.html
