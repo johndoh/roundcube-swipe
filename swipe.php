@@ -28,7 +28,6 @@
 class swipe extends rcube_plugin
 {
     public $task = '^((?!login).)*$';
-    private $menu_file = null;
     private $dont_override = array();
     private $disabled_actions = array();
     private $laoded_plugins = array();
@@ -97,9 +96,8 @@ class swipe extends rcube_plugin
 
         $this->_load_config();
 
-        $this->menu_file = '/' . $this->local_skin_path() . '/includes/menu.html';
-        $filepath = slashify($this->home) . $this->menu_file;
-        if (is_file($filepath) && is_readable($filepath)) {
+        // check if current skin is supported (if menu template exists)
+        if ($file_info = $this->_get_include_file('menu.html')) {
             // Allow other plugins to interact with the actions list
             $data = rcube::get_instance()->plugins->exec_hook('swipe_actions', array('list_type' => $this->list_type, 'actions' => $this->actions[$this->list_type]));
             $this->list_type = $data['list_type'];
@@ -138,7 +136,10 @@ class swipe extends rcube_plugin
 
                 // add swipe actions popup menu
                 $this->rcube->output->add_handler('swipeoptionslist', array($this, 'options_list'));
-                $html = $this->rcube->output->just_parse("<roundcube:include file=\"$this->menu_file\" skinpath=\"plugins/swipe\" />");
+
+                // parse swipe options menu and add to output
+                list($path, $include_path) = $file_info;
+                $html = $this->rcube->output->just_parse("<roundcube:include file=\"/$path\" skinpath=\"$include_path\" />");
                 $this->rcube->output->add_footer($html);
             }
         }
@@ -288,5 +289,21 @@ class swipe extends rcube_plugin
         );
 
         return eval("return ($expression);");
+    }
+
+    private function _get_include_file($file)
+    {
+        $file_info = false;
+
+        $base_path = slashify($this->home);
+        $rel_path = $this->local_skin_path() . '/includes/' . $file;
+        // path to skin folder relative to Roundcube root for template engine
+        $template_include_path = 'plugins/' . $this->ID;
+
+        if (is_file($base_path . $rel_path) && is_readable($base_path . $rel_path)) {
+            $file_info = array($rel_path, $template_include_path);
+        }
+
+        return $file_info;
     }
 }
