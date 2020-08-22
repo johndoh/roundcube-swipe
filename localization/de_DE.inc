@@ -1,4 +1,5 @@
 <?php
+/* Author: double2ugly and NNowakowski */
 
 $labels = array();
 $labels['swipeoptions'] = 'Wisch-Optionen';
