@@ -37,7 +37,7 @@ class swipe extends rcube_plugin
             'list_name' => 'message_list',
             'selection_id' => 'uid',
             'vertical' => [
-                'checkmail' => ['label' => 'checkmail']
+                'checkmail' => ['label' => 'checkmail'],
             ],
             'horizontal' => [
                 'archive' => ['label' => 'archive.buttontext', 'plugin' => true, 'condition' => 'config:archive_folder !== false'],
@@ -49,8 +49,8 @@ class swipe extends rcube_plugin
                 'reply-all' => ['label' => 'replyall'],
                 'swipe-flagged' => ['label' => 'swipe.markasflagged'],
                 'swipe-read' => ['label' => 'swipe.markasread'],
-                'swipe-select' => ['label' => 'select']
-            ]
+                'swipe-select' => ['label' => 'select'],
+            ],
         ],
         'contactlist' => [
             'list_name' => 'contact_list',
@@ -60,10 +60,10 @@ class swipe extends rcube_plugin
                 'vcard_attachments' => ['label' => 'vcard_attachments.forwardvcard', 'plugin' => true],
                 'compose' => ['label' => 'compose'],
                 'delete' => ['label' => 'delete'],
-                'swipe-select' => ['label' => 'select']
-            ]
+                'swipe-select' => ['label' => 'select'],
+            ],
         ],
-        'none' => null
+        'none' => null,
     ];
     private $rcube;
     private $list_type;
@@ -112,7 +112,7 @@ class swipe extends rcube_plugin
             $this->rcube->output->set_env('swipe_actions', [
                 'left' => $config['left'],
                 'right' => $config['right'],
-                'down' => $config['down']
+                'down' => $config['down'],
             ]);
             $this->rcube->output->set_env('swipe_list_name', $this->actions[$this->list_type]['list_name']);
             $this->rcube->output->set_env('swipe_selection_id', $this->actions[$this->list_type]['selection_id']);
@@ -132,7 +132,7 @@ class swipe extends rcube_plugin
                         'classact' => 'button swipe',
                         'title' => 'swipe.swipeoptions',
                         'innerclass' => 'inner',
-                        'label' => 'swipe.swipeoptions'
+                        'label' => 'swipe.swipeoptions',
                     ], 'listcontrols');
 
                 // add swipe actions popup menu
