@@ -47,18 +47,18 @@ Configuration
 -------------
 To set the default actions add the following to your Roundcube config file:
 ```php
-$config['swipe_actions'] = array(
-    'messagelist' => array(
+$config['swipe_actions'] = [
+    'messagelist' => [
         'left' => '<action>',
         'right' => '<action>',
         'down' => '<action>'
-    ),
-    'contactlist' => array(
+    ],
+    'contactlist' => [
         'left' => '<action>',
         'right' => '<action>',
         'down' => 'none'
-    )
-);
+    ]
+];
 ```
 Replace `<action>` with your desired action from the list below.
 Users can configure the actions, overriding the defaults, from the
@@ -116,18 +116,18 @@ on the list options menu.
  * list_type - the name of list the swipe actions are being performed on, e.g. messagelist, used when selecting/saving config
  * actions - an array of actions for this list in the format:
 ```
-$args['actions'] = array(
+$args['actions'] = [
     'list_name' => '*JS list object name*',
     'selection_id' => '*JS element identifier e.g. UID*',
-    'vertical' => array(
-        '*action_name*' => array('label' => '*display name*'),
+    'vertical' => [
+        '*action_name*' => ['label' => '*display name*'],
         ...
-    ),
-    'horizontal' => array(
-        '*action_name*' => array('label' => '*display name*'),
+    ],
+    'horizontal' => [
+        '*action_name*' => ['label' => '*display name*'],
         ...
-    )
-);
+    ]
+];
 ```
 
 *Return values:*

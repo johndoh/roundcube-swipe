@@ -1,7 +1,7 @@
 <?php
 /* Author: Philip Weir */
 
-$labels = array();
+$labels = [];
 $labels['swipeoptions'] = 'Swipe options';
 $labels['swipeleft'] = 'Swipe left';
 $labels['swiperight'] = 'Swipe right';
@@ -12,4 +12,4 @@ $labels['markasflagged'] = 'Mark as flagged';
 $labels['markasunflagged'] = 'Mark as unflagged';
 $labels['deselect'] = 'Deselect';
 
-$messages = array();
+$messages = [];
