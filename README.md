@@ -115,7 +115,7 @@ on the list options menu.
 *Arguments:*
  * list_type - the name of list the swipe actions are being performed on, e.g. messagelist, used when selecting/saving config
  * actions - an array of actions for this list in the format:
-```
+```php
 $args['actions'] = [
     'list_name' => '*JS list object name*',
     'selection_id' => '*JS element identifier e.g. UID*',
