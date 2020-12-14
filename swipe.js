@@ -86,67 +86,67 @@ rcube_webmail.prototype.swipe = {
     select_action: function(direction, obj) {
         var actions = {
                 'archive': {
-                    'class': rcmail.env.archive_folder ? 'archive swipe_move' : null,
+                    'class': rcmail.env.archive_folder ? 'archive swipe-move' : null,
                     'text': rcmail.env.archive_folder ? 'archive.buttontext': null,
                     'command': rcmail.env.archive_folder ? 'plugin.archive' : null
                 },
                 'checkmail': {
-                    'class': 'refresh swipe_active',
+                    'class': 'refresh swipe-checkmail',
                     'text': 'refresh',
                     'callback': function(p) { rcmail.command('checkmail'); }
                 },
                 'compose': {
-                    'class': 'compose swipe_compose',
+                    'class': 'compose swipe-compose',
                     'text': 'compose',
                     'command': 'compose'
                 },
                 'delete': {
-                    'class': 'delete swipe_danger',
+                    'class': 'delete swipe-danger',
                     'text': 'delete',
                     'command': 'delete'
                 },
                 'forward': {
-                    'class': 'forward swipe_compose',
+                    'class': 'forward swipe-compose',
                     'text': 'forward',
                     'command': 'compose/forward'
                 },
                 'markasjunk': {
-                    'class': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'notjunk swipe_success' : 'junk swipe_danger',
+                    'class': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'notjunk swipe-success' : 'junk swipe-danger',
                     'text': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'markasjunk.markasnotjunk' : 'markasjunk.markasjunk',
                     'command': !rcmail.env.markasjunk_spam_only && rcmail.env.mailbox == rcmail.env.markasjunk_spam_mailbox ? 'plugin.markasjunk.not_junk' : 'plugin.markasjunk.junk'
                 },
                 'move': {
-                    'class': 'move swipe_move',
+                    'class': 'move swipe-move',
                     'text': 'moveto',
                     'command': 'move'
                 },
                 'reply': {
-                    'class': 'reply one swipe_compose',
+                    'class': 'reply one swipe-compose',
                     'text': 'reply',
                     'command': 'compose/reply'
                 },
                 'reply-all': {
-                    'class': 'reply all swipe_compose',
+                    'class': 'reply all swipe-compose',
                     'text': 'replyall',
                     'command': 'compose/reply-all'
                 },
                 'swipe-read': {
-                    'class': (obj && obj.hasClass('unread') ? 'read' : 'unread') + ' swipe_mark',
+                    'class': (obj && obj.hasClass('unread') ? 'read' : 'unread') + ' swipe-mark',
                     'text': obj && obj.hasClass('unread') ? 'swipe.markasread' : 'swipe.markasunread',
                     'command': obj && obj.hasClass('unread') ? 'mark/read' : 'mark/unread'
                 },
                 'swipe-flagged': {
-                    'class': (obj && obj.hasClass('flagged') ? 'unflag' : 'flag') + ' swipe_mark',
+                    'class': (obj && obj.hasClass('flagged') ? 'unflag' : 'flag') + ' swipe-mark',
                     'text': obj && obj.hasClass('flagged') ? 'swipe.markasunflagged' : 'swipe.markasflagged',
                     'command': obj && obj.hasClass('flagged') ? 'mark/unflagged' : 'mark/flagged'
                 },
                 'swipe-select': {
-                    'class': (obj && obj.hasClass('selected') ? 'select invert' : 'selection') + ' swipe_active',
+                    'class': (obj && obj.hasClass('selected') ? 'select invert' : 'selection') + ' swipe-select',
                     'text': obj && obj.hasClass('selected') ? 'swipe.deselect' : 'select',
                     'command': obj && obj.hasClass('selected') ? 'select/deselect' : 'select/select'
                 },
                 'vcard_attachments': {
-                    'class': 'vcard swipe_compose',
+                    'class': 'vcard swipe-compose',
                     'text': 'vcard_attachments.forwardvcard',
                     'command': 'attach-vcard'
                 },
