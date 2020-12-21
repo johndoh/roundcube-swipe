@@ -38,8 +38,8 @@ Supported browsers
 ------------------
 This plugin relies on [Pointer Events][pointer] with fallback support for
 [Touch Events][touch] and should work in any browser which supports either of
-these, such as: Chrome, Firefox, or Safari. When used with Edge there is no
-support for vertical swipe actions, this is because the browser does not
+these, such as: Chrome, Firefox, or Safari. When used with Edge Legacy there is
+no support for vertical swipe actions, this is because the browser does not
 support the `touch-action: pan-down;` CSS property - [bug report][edge].
 There is no support for Internet Explorer.
 
@@ -48,16 +48,16 @@ Configuration
 To set the default actions add the following to your Roundcube config file:
 ```php
 $config['swipe_actions'] = [
-    'messagelist' => [
-        'left' => '<action>',
-        'right' => '<action>',
-        'down' => '<action>'
-    ],
-    'contactlist' => [
-        'left' => '<action>',
-        'right' => '<action>',
-        'down' => 'none'
-    ]
+  'messagelist' => [
+    'left' => '<action>',
+    'right' => '<action>',
+    'down' => '<action>'
+  ],
+  'contactlist' => [
+    'left' => '<action>',
+    'right' => '<action>',
+    'down' => 'none'
+  ]
 ];
 ```
 Replace `<action>` with your desired action from the list below.
@@ -117,16 +117,16 @@ on the list options menu.
  * actions - an array of actions for this list in the format:
 ```php
 $args['actions'] = [
-    'list_name' => '*JS list object name*',
-    'selection_id' => '*JS element identifier e.g. UID*',
-    'vertical' => [
-        '*action_name*' => ['label' => '*display name*'],
-        ...
-    ],
-    'horizontal' => [
-        '*action_name*' => ['label' => '*display name*'],
-        ...
-    ]
+  'list_name' => '*JS list object name*',
+  'selection_id' => '*JS element identifier e.g. UID*',
+  'vertical' => [
+    '*action_name*' => ['label' => '*display name*'],
+    ...
+  ],
+  'horizontal' => [
+    '*action_name*' => ['label' => '*display name*'],
+    ...
+  ]
 ];
 ```
 
