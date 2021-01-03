@@ -1,7 +1,7 @@
 {
   "name": "johndoh/swipe",
   "description": "Adds swipe actions to the message list of Roundcube",
-  "keywords": ["swipe","gesture"],
+  "keywords": ["swipe", "gesture"],
   "homepage": "https://github.com/johndoh/roundcube-swipe/",
   "license": "GPL-3.0",
   "type": "roundcube-plugin",
@@ -19,7 +19,8 @@
   },
   "extra": {
     "roundcube": {
-      "min-version": "1.5-dev"
+      "min-version": "1.5-dev",
+      "persistent-files": ["skins/elastic/_custom.less"]
     }
   }
 }
