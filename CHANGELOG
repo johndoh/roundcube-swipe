@@ -1,6 +1,8 @@
 Roundcube Webmail Swipe
 =======================
 
+Version 0.4 (2021-05-08, rc-1.4.4)
+=================================================
  * Support Dark Mode in Elastic
  * Support for customizing Elastic skin
  * Fix swipe-select action (#15)

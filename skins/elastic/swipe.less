@@ -173,69 +173,71 @@ html.edge #swipeoptionsmenu > .swipeoptions-down {
 }
 
 // dark mode
-& when (@dark-mode-enabled = true) {
-  html.dark-mode {
-    #swipe-action {
-      &.horizontal {
-        background-color: @color-dark-swipe-list-background;
+& when (isdefined(@dark-mode-enabled)) {
+  & when (@dark-mode-enabled = true) {
+    html.dark-mode {
+      #swipe-action {
+        &.horizontal {
+          background-color: @color-dark-swipe-list-background;
 
-        a {
+          a {
+            color: @color-dark-swipe-list;
+          }
+        }
+
+        &.vertical a {
           color: @color-dark-swipe-list;
         }
-      }
 
-      &.vertical a {
-        color: @color-dark-swipe-list;
-      }
+        &.horizontal,
+        &.vertical > .swipe-container {
+          &.swipe-active,
+          &.swipe-mark {
+            background-color: @color-dark-swipe-mark-background;
 
-      &.horizontal,
-      &.vertical > .swipe-container {
-        &.swipe-active,
-        &.swipe-mark {
-          background-color: @color-dark-swipe-mark-background;
+            a {
+              color: @color-dark-swipe-mark;
+            }
+          }
 
-          a {
-            color: @color-dark-swipe-mark;
+          &.swipe-danger {
+            background-color: @color-dark-swipe-danger-background;
+
+            a {
+              color: @color-dark-swipe-danger;
+            }
+          }
+
+          &.swipe-move {
+            background-color: @color-dark-swipe-move-background;
+
+            a {
+              color: @color-dark-swipe-move;
+            }
+          }
+
+          &.swipe-success,
+          &.swipe-compose {
+            background-color: @color-dark-swipe-compose-background;
+
+            a {
+              color: @color-dark-swipe-compose;
+            }
           }
         }
 
-        &.swipe-danger {
-          background-color: @color-dark-swipe-danger-background;
-
-          a {
-            color: @color-dark-swipe-danger;
-          }
-        }
-
-        &.swipe-move {
-          background-color: @color-dark-swipe-move-background;
-
-          a {
-            color: @color-dark-swipe-move;
-          }
-        }
-
-        &.swipe-success,
-        &.swipe-compose {
-          background-color: @color-dark-swipe-compose-background;
-
-          a {
-            color: @color-dark-swipe-compose;
+        > .swipe-container {
+          &.down {
+            background-color: @color-dark-swipe-down-background;
+            border-color: @color-dark-swipe-down-border;
           }
         }
       }
 
-      > .swipe-container {
-        &.down {
-          background-color: @color-dark-swipe-down-background;
-          border-color: @color-dark-swipe-down-border;
-        }
+      .swipe-active:not(#swipe-action),
+      .swipe-active > td {
+        background-color: @color-dark-background;
       }
-    }
-
-    .swipe-active:not(#swipe-action),
-    .swipe-active > td {
-      background-color: @color-dark-background;
     }
   }
 }

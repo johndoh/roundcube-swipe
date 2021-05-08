@@ -3,7 +3,7 @@
   "description": "Adds swipe actions to the message list of Roundcube",
   "keywords": ["swipe", "gesture"],
   "homepage": "https://github.com/johndoh/roundcube-swipe/",
-  "license": "GPL-3.0",
+  "license": "GPL-3.0-or-later",
   "type": "roundcube-plugin",
   "version": "0.4-dev",
   "authors": [
@@ -19,7 +19,7 @@
   },
   "extra": {
     "roundcube": {
-      "min-version": "1.5-dev",
+      "min-version": "1.4.4",
       "persistent-files": ["skins/elastic/_custom.less"]
     }
   }
