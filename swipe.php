@@ -200,7 +200,7 @@ class swipe extends rcube_plugin
 
         $save = false;
         foreach (['left', 'right', 'down'] as $direction) {
-            if (($prop = rcube_utils::get_input_value('swipe_' . $direction, rcube_utils::INPUT_POST)) && $this->_allowed_action($direction)) {
+            if (($prop = rcube_utils::get_input_string('swipe_' . $direction, rcube_utils::INPUT_POST)) && $this->_allowed_action($direction)) {
                 $this->config[$this->list_type][$direction] = $prop;
                 $save = true;
             }
