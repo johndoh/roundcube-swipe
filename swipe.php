@@ -27,7 +27,7 @@
  */
 class swipe extends rcube_plugin
 {
-    public $task = '^((?!login).)*$';
+    public $task = '?(?!login$|logout$|cli$).*';
     private $dont_override = [];
     private $disabled_actions = [];
     private $laoded_plugins = [];
