@@ -34,9 +34,8 @@ rcube_webmail.prototype.swipe = {
             }
         }
 
-        // Edge (Trident) does not support transform on <tr>s
-        // Roundcube 1.4 detects Edge Trident version as 537.36 see #6952
-        if (bw.edge && (bw.vendver < 75 || bw.vendver > 537) && $(obj).is('tr')) {
+        // Legacy Edge (Trident) does not support transform on <tr>s
+        if (bw.edge && bw.vendver < 75 && $(obj).is('tr')) {
             $(obj).children('td').css('transform', translate);
         }
         else {
