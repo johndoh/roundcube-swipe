@@ -463,7 +463,7 @@ $(document).ready(function() {
                     'transition': 'translatex',
                     'action_sytle': function(o) {
                         return {
-                            'top': o.position().top + (bw.mz ? rcmail.swipe.parent.scrollTop() : 0),
+                            'top': o.position().top + rcmail.swipe.parent.scrollTop(),
                             'left': o.position().left,
                             'width': o.width() + 'px',
                             'height': (o.height() - 2) + 'px' // subtract the border
