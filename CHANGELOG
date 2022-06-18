@@ -1,6 +1,10 @@
 Roundcube Webmail Swipe
 =======================
 
+Version 0.5 (2022-06-18, rc-1.5)
+=================================================
+ * Fix action box alignment after message list scroll (possibly related to rc 0389ffd)
+
 Version 0.4 (2021-05-08, rc-1.4.4)
 =================================================
  * Support Dark Mode in Elastic
