@@ -1,6 +1,8 @@
 Roundcube Webmail Swipe
 =======================
 
+ * Fix archive config var name (#25)
+
 Version 0.5 (2022-06-18, rc-1.5)
 =================================================
  * Fix action box alignment after message list scroll (possibly related to rc 0389ffd)
