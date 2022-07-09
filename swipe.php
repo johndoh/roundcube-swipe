@@ -40,7 +40,7 @@ class swipe extends rcube_plugin
                 'checkmail' => ['label' => 'checkmail'],
             ],
             'horizontal' => [
-                'archive' => ['label' => 'archive.buttontext', 'plugin' => true, 'condition' => 'config:archive_folder !== false'],
+                'archive' => ['label' => 'archive.buttontext', 'plugin' => true, 'condition' => 'config:archive_mbox !== false'],
                 'delete' => ['label' => 'delete'],
                 'forward' => ['label' => 'forward'],
                 'markasjunk' => ['label' => 'markasjunk.markasjunk', 'plugin' => true],
