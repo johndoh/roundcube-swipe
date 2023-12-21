@@ -139,7 +139,7 @@ class swipe extends rcube_plugin
                 $this->rcube->output->add_handler('swipeoptionslist', [$this, 'options_list']);
 
                 // parse swipe options menu and add to output
-                list($path, $include_path) = $file_info;
+                [$path, $include_path] = $file_info;
                 $html = $this->rcube->output->just_parse("<roundcube:include file=\"/$path\" skinpath=\"$include_path\" />");
                 $this->rcube->output->add_footer($html);
             }
@@ -246,8 +246,8 @@ class swipe extends rcube_plugin
 
         // Skip the action if it is in disabled_actions config option
         // Also skip actions from disabled/not configured plugins
-        if (in_array('swipe_actions', $this->dont_override) || in_array('swipe_actions.' . $this->list_type, $this->dont_override) ||
-            in_array('swipe_actions.' . $this->list_type . '.' . $direction, $this->dont_override)) {
+        if (in_array('swipe_actions', $this->dont_override) || in_array('swipe_actions.' . $this->list_type, $this->dont_override)
+            || in_array('swipe_actions.' . $this->list_type . '.' . $direction, $this->dont_override)) {
             $result = false;
         }
         elseif (in_array($action, $this->disabled_actions) || in_array($this->rcube->task . $action, $this->disabled_actions)) {
