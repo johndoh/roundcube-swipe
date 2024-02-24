@@ -140,7 +140,7 @@ class swipe extends rcube_plugin
 
                 // parse swipe options menu and add to output
                 [$path, $include_path] = $file_info;
-                $html = $this->rcube->output->just_parse("<roundcube:include file=\"/$path\" skinpath=\"$include_path\" />");
+                $html = $this->rcube->output->just_parse("<roundcube:include file=\"/{$path}\" skinpath=\"{$include_path}\" />");
                 $this->rcube->output->add_footer($html);
             }
         }
@@ -249,11 +249,9 @@ class swipe extends rcube_plugin
         if (in_array('swipe_actions', $this->dont_override) || in_array('swipe_actions.' . $this->list_type, $this->dont_override)
             || in_array('swipe_actions.' . $this->list_type . '.' . $direction, $this->dont_override)) {
             $result = false;
-        }
-        elseif (in_array($action, $this->disabled_actions) || in_array($this->rcube->task . $action, $this->disabled_actions)) {
+        } elseif (in_array($action, $this->disabled_actions) || in_array($this->rcube->task . $action, $this->disabled_actions)) {
             $result = false;
-        }
-        elseif (isset($opts['plugin']) && !in_array($action, $this->laoded_plugins)) {
+        } elseif (isset($opts['plugin']) && !in_array($action, $this->laoded_plugins)) {
             // check plugin is enabled
             $result = false;
         }
@@ -289,7 +287,7 @@ class swipe extends rcube_plugin
             $expression
         );
 
-        return eval("return ($expression);");
+        return eval("return ({$expression});");
     }
 
     private function _get_include_file($file)
