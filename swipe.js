@@ -44,8 +44,9 @@ rcube_webmail.prototype.swipe = {
     },
 
     action_callback: function (command, props) {
-        if (!props.uid)
-        { return; }
+        if (!props.uid) {
+            return;
+        }
 
         var prev_uid = rcmail.env[rcmail.env.swipe_selection_id];
         rcmail.env[rcmail.env.swipe_selection_id] = props.uid;
@@ -162,6 +163,7 @@ rcube_webmail.prototype.swipe = {
             // abort if one of the handlers returned false
             return ret === false ? actions.none : ret;
         }
+
         if (action = actions[rcmail.env.swipe_actions[direction]]) {
             if (!action.callback && action.command) {
                 action.callback = function (p) { rcmail.swipe.action_callback(action.command, p); };
@@ -195,8 +197,9 @@ rcube_webmail.prototype.swipe = {
                 $('.swipe-action').attr('class', rcmail.swipe.button_class);
                 rcmail.swipe.set_scroll_css();
 
-                if (opts.parent_obj)
-                { opts.parent_obj.off(swipeevents.moveevent, rcube_event.cancel); }
+                if (opts.parent_obj) {
+                    opts.parent_obj.off(swipeevents.moveevent, rcube_event.cancel);
+                }
 
                 // restore normal scrolling on touch devices
                 if (swipedata.axis == 'vertical' && !bw.pointer) {
@@ -231,14 +234,16 @@ rcube_webmail.prototype.swipe = {
                     swipedata.scrollable = rcmail.swipe.parent[0].offsetHeight < rcmail.swipe.parent[0].scrollHeight;
                     swipedata.scrolltop = rcmail.swipe.parent.scrollTop();
 
-                    if (opts.parent_obj)
-                    { opts.parent_obj.off(swipeevents.moveevent, rcube_event.cancel); }
+                    if (opts.parent_obj) {
+                        opts.parent_obj.off(swipeevents.moveevent, rcube_event.cancel);
+                    }
                 }
             })
             .on(swipeevents.moveevent, function (e) {
                 // make sure no other swipes are active and no other pointers
-                if (swipedata.id != swipeevents.id(e) || swipeevents.type(e) != 'touch')
-                { return; }
+                if (swipedata.id != swipeevents.id(e) || swipeevents.type(e) != 'touch') {
+                    return;
+                }
 
                 var changeX = swipeevents.pos(e, true) - swipedata.x;
                 var changeY = swipeevents.pos(e, false) - swipedata.y;
@@ -261,19 +266,23 @@ rcube_webmail.prototype.swipe = {
                 }
 
                 // make sure no other swipes are active
-                if (!temp_axis || !opts[temp_axis] || (rcmail.swipe.active && rcmail.swipe.active != temp_axis))
-                { return; }
+                if (!temp_axis || !opts[temp_axis] || (rcmail.swipe.active && rcmail.swipe.active != temp_axis)) {
+                    return;
+                }
 
                 // do not interfere with normal list scrolling
                 if (temp_axis == 'vertical' && rcmail.swipe.parent.scrollTop() != 0) {
-                    if (swipedata.scrollable)
-                    { rcmail.swipe.set_scroll_css(); }
+                    if (swipedata.scrollable) {
+                        rcmail.swipe.set_scroll_css();
+                    }
 
-                    if (swipedata.axis)
-                    { swipeevents.clearswipe(e); }
+                    if (swipedata.axis) {
+                        swipeevents.clearswipe(e);
+                    }
 
                     return;
                 }
+
                 if (temp_axis == 'horizontal' && !bw.pointer && swipedata.scrolltop != rcmail.swipe.parent.scrollTop()) {
                     return;
                 }
@@ -284,8 +293,9 @@ rcube_webmail.prototype.swipe = {
                 var action = rcmail.swipe.select_action(direction, opts.source_obj);
 
                 // if there is no callback then abort
-                if (!action.callback)
-                { return; }
+                if (!action.callback) {
+                    return;
+                }
 
                 $('#swipe-action').attr('class', temp_axis).data('callback', action.callback);
                 $('.swipe-container').attr('class', rcmail.swipe.container_class + ' ' + direction);
@@ -303,12 +313,14 @@ rcube_webmail.prototype.swipe = {
                     opts[swipedata.axis].target_obj.addClass('swipe-active');
                     rcmail.swipe.active = swipedata.axis; // set the active swipe
 
-                    if (opts.parent_obj)
-                    { opts.parent_obj.on(swipeevents.moveevent, rcube_event.cancel); }
+                    if (opts.parent_obj) {
+                        opts.parent_obj.on(swipeevents.moveevent, rcube_event.cancel);
+                    }
 
                     // prevent up scroll when vertical active on touch devices
-                    if (rcmail.swipe.active == 'vertical' && !bw.pointer && changeY > 0)
-                    { rcmail.swipe.parent.css('overflow-y', 'hidden'); }
+                    if (rcmail.swipe.active == 'vertical' && !bw.pointer && changeY > 0) {
+                        rcmail.swipe.parent.css('overflow-y', 'hidden');
+                    }
                 }
 
                 // the user must swipe a certain about before the action is activated, try to prevent accidental actions
@@ -330,15 +342,17 @@ rcube_webmail.prototype.swipe = {
                 if (swipeevents.type(e) == 'touch' && swipedata.id == swipeevents.id(e) && rcmail.swipe.active
                     && rcmail.swipe.active == swipedata.axis && opts[swipedata.axis].target_obj.hasClass('swipe-active')) {
                     var callback = null;
-                    if (callback = $('#swipe-action').data('callback'))
-                    { callback({ uid: opts[swipedata.axis].uid, obj: opts[swipedata.axis].target_obj, originalEvent: e }); }
+                    if (callback = $('#swipe-action').data('callback')) {
+                        callback({ uid: opts[swipedata.axis].uid, obj: opts[swipedata.axis].target_obj, originalEvent: e });
+                    }
 
                     swipeevents.clearswipe(e);
                 }
             })
             .on(swipeevents.cancelevent, function (e) {
-                if (swipedata.axis)
-                { swipeevents.clearswipe(e); }
+                if (swipedata.axis) {
+                    swipeevents.clearswipe(e);
+                }
             });
     },
 
@@ -361,8 +375,9 @@ $(document).ready(function () {
             rcmail.env.swipe_list = rcmail[rcmail.env.swipe_list_name];
 
             var list_container = $(rcmail.env.swipe_list.list).parent();
-            if (rcmail.env.swipe_list.draggable || !list_container[0].addEventListener)
-            { return; }
+            if (rcmail.env.swipe_list.draggable || !list_container[0].addEventListener) {
+                return;
+            }
 
             var swipe_action = $('<div>').attr('id', 'swipe-action').append(rcmail.swipe.element);
 
@@ -402,8 +417,9 @@ $(document).ready(function () {
                         }
                     });
 
-                    if (!$.isEmptyObject(post))
-                    { rcmail.http_post('plugin.swipe.save_settings', post); }
+                    if (!$.isEmptyObject(post)) {
+                        rcmail.http_post('plugin.swipe.save_settings', post);
+                    }
 
                     return true;
                 };
@@ -447,8 +463,9 @@ $(document).ready(function () {
 
         // right/left/down swipe on list
         rcmail.addEventListener('insertrow', function (props) {
-            if (rcmail.env.swipe_list.draggable || !$('#' + props.row.id)[0].addEventListener)
-            { return; }
+            if (rcmail.env.swipe_list.draggable || !$('#' + props.row.id)[0].addEventListener) {
+                return;
+            }
 
             var row_width = $('#' + props.row.id).width();
             // if no row width is available then use window width as fall back
