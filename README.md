@@ -38,10 +38,8 @@ Supported browsers
 ------------------
 This plugin relies on [Pointer Events][pointer] with fallback support for
 [Touch Events][touch] and should work in any browser which supports either of
-these, such as: Chrome, Firefox, or Safari. When used with Edge Legacy there is
-no support for vertical swipe actions, this is because the browser does not
-support the `touch-action: pan-down;` CSS property - [bug report][edge].
-There is no support for Internet Explorer.
+these. Vertical swipe actions require `touch-action: pan-down;` [support][pan-down].
+There is no support for Legacy Edge or Internet Explorer.
 
 Configuration
 -------------
@@ -159,4 +157,4 @@ then recompiling the CSS.
 [gpl]: https://www.gnu.org/licenses/gpl.html
 [pointer]: https://caniuse.com/#feat=pointer
 [touch]: https://caniuse.com/#feat=touch
-[edge]: https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/10573036/
+[pan-down]: https://caniuse.com/?search=pan-down

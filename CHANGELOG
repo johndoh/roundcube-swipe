@@ -2,6 +2,7 @@ Roundcube Webmail Swipe
 =======================
 
  * Fix archive config var name (#25)
+ * Drop Legacy Edge support
 
 Version 0.5 (2022-06-18, rc-1.5)
 =================================================
