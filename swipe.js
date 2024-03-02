@@ -195,28 +195,11 @@ rcube_webmail.prototype.swipe = {
                     opts.parent_obj.off(swipeevents.moveevent, rcube_event.cancel);
                 }
 
-                // restore normal scrolling on touch devices
-                if (swipedata.axis == 'vertical' && !bw.pointer) {
-                    rcmail.swipe.parent.css('overflow-y', 'auto');
-                }
-
                 swipedata = {};
                 rcmail.swipe.active = null;
             },
         };
         var swipedata = {};
-
-        // fallback to touch events if there is no pointer support
-        if (!bw.pointer) {
-            swipeevents.startevent = 'touchstart';
-            swipeevents.moveevent = 'touchmove';
-            swipeevents.endevent = 'touchend';
-            swipeevents.cancelevent = 'touchcancel';
-            swipeevents.minmove = 15;
-            swipeevents.id = function (e) { return e.changedTouches.length == 1 ? e.changedTouches[0].identifier : -1; };
-            swipeevents.type = function (e) { return 'touch'; };
-            swipeevents.pos = function (e, x) { return e.originalEvent.targetTouches[0][x ? 'pageX' : 'pageY']; };
-        }
 
         // swipe on list container
         opts.source_obj
@@ -277,10 +260,6 @@ rcube_webmail.prototype.swipe = {
                     return;
                 }
 
-                if (temp_axis == 'horizontal' && !bw.pointer && swipedata.scrolltop != rcmail.swipe.parent.scrollTop()) {
-                    return;
-                }
-
                 // save the axis info
                 swipedata.axis = temp_axis;
                 var direction = (swipedata.axis == 'vertical' ? 'down' : (changeX < 0 ? 'left' : 'right'));
@@ -309,11 +288,6 @@ rcube_webmail.prototype.swipe = {
 
                     if (opts.parent_obj) {
                         opts.parent_obj.on(swipeevents.moveevent, rcube_event.cancel);
-                    }
-
-                    // prevent up scroll when vertical active on touch devices
-                    if (rcmail.swipe.active == 'vertical' && !bw.pointer && changeY > 0) {
-                        rcmail.swipe.parent.css('overflow-y', 'hidden');
                     }
                 }
 
@@ -351,7 +325,7 @@ rcube_webmail.prototype.swipe = {
     },
 
     set_scroll_css: function () {
-        if (bw.pointer && rcmail.swipe.parent.scrollTop() == 0 && rcmail.swipe.select_action('down').callback) {
+        if (rcmail.swipe.parent.scrollTop() == 0 && rcmail.swipe.select_action('down').callback) {
             // allow vertical pointer events to fire (if one is configured)
             rcmail.swipe.parent.css('touch-action', 'pan-down');
         }
@@ -362,7 +336,7 @@ rcube_webmail.prototype.swipe = {
 };
 
 $(document).ready(function () {
-    if (window.rcmail && ((bw.touch && !bw.ie) || bw.pointer)) {
+    if (window.rcmail && bw.pointer) {
         rcmail.addEventListener('init', function () {
             rcmail.env.swipe_list = rcmail[rcmail.env.swipe_list_name];
 

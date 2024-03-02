@@ -36,9 +36,9 @@ Supported skins
 
 Supported browsers
 ------------------
-This plugin relies on [Pointer Events][pointer] with fallback support for
-[Touch Events][touch] and should work in any browser which supports either of
-these. Vertical swipe actions require `touch-action: pan-down;` [support][pan-down].
+This plugin relies on [Pointer Events][pointer] and should work in any
+browser which supports these. Vertical swipe actions require
+`touch-action: pan-down;` [support][pan-down].
 There is no support for Legacy Edge or Internet Explorer.
 
 Configuration
@@ -156,5 +156,4 @@ then recompiling the CSS.
 [releases]: https://github.com/johndoh/roundcube-swipe/releases
 [gpl]: https://www.gnu.org/licenses/gpl.html
 [pointer]: https://caniuse.com/#feat=pointer
-[touch]: https://caniuse.com/#feat=touch
 [pan-down]: https://caniuse.com/?search=pan-down
