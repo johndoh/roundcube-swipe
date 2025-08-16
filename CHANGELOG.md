@@ -5,6 +5,7 @@
 - Fix `archive` config var name (#25)
 - Drop Legacy Edge support
 - Drop touch event support
+- Drop support for PHP < 8.1
 
 ## Version 0.5 (2022-06-18, rc-1.5)
 
