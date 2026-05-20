@@ -23,11 +23,14 @@ folder for details on the skin license.
 
 Install
 -------
+* Install via Composer by adding `johndoh/swipe` to your `composer.json`
+file or running `composer require johndoh/swipe`
+<br/>or
 * Place this plugin folder into plugins directory of Roundcube
-* Add swipe to $config['plugins'] in your Roundcube config
+* Add `swipe` to `$config['plugins']` in your Roundcube config
 
 **NB:** When downloading the plugin from GitHub you will need to create a
-directory called skin and place the files in there, ignoring the root
+directory called `swipe` and place the files in there, ignoring the root
 directory in the downloaded archive.
 
 Supported skins
