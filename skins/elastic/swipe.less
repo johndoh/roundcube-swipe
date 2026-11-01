@@ -242,4 +242,14 @@ html.edge #swipeoptionsmenu > .swipeoptions-down {
   }
 }
 
+// iOS: Elastic adds .ios-scroll to every .scroller (overflow: scroll !important).
+// A row swiped to the right then overflows the list, the list scrolls
+// horizontally and Safari cancels the gesture, so the action only flickers
+// (issue #26, only in lists long enough to scroll). Allow vertical scrolling
+// only; !important is needed to override .ios-scroll, the selector is more
+// specific and limited to the list the plugin is attached to.
+.scroller:has(> #swipe-action) {
+  overflow-x: hidden !important;
+}
+
 @import (optional) "_custom";
